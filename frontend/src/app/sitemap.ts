@@ -1,5 +1,8 @@
 import { MetadataRoute } from 'next';
 
+// Exigido pelo output: 'export' (GitHub Pages)
+export const dynamic = 'force-static';
+
 const BASE_URL = 'https://andrevalenca.com.br';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

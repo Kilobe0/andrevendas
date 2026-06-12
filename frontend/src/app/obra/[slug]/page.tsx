@@ -1,7 +1,18 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getArtworkBySlug, getRelatedArtworks, formatPrice, getImageUrl } from '@/lib/api';
+import { getArtworks, getArtworkBySlug, getRelatedArtworks, formatPrice, getImageUrl } from '@/lib/api';
 import ArtworkDetail from '@/components/gallery/ArtworkDetail';
+
+// No export estático (GitHub Pages) cada obra vira um HTML gerado no build;
+// obras criadas depois só aparecem após um novo deploy.
+export async function generateStaticParams() {
+  try {
+    const artworks = await getArtworks();
+    return artworks.map((a) => ({ slug: a.slug }));
+  } catch {
+    return [];
+  }
+}
 
 interface Props {
   params: Promise<{ slug: string }>;
