@@ -9,7 +9,13 @@ export async function generateStaticParams() {
   try {
     const artworks = await getArtworks();
     return artworks.map((a) => ({ slug: a.slug }));
-  } catch {
+  } catch (err) {
+    // output: 'export' não aceita lista vazia — sem API não há o que publicar
+    if (process.env.STATIC_EXPORT === '1') {
+      throw new Error(
+        `API indisponível em ${process.env.NEXT_PUBLIC_API_URL} — o build estático precisa do backend no ar. (${err})`,
+      );
+    }
     return [];
   }
 }

@@ -34,6 +34,18 @@ jobs:
         working-directory: frontend
         run: npm ci
 
+      # O free tier do Render hiberna — este passo também serve de "wake up"
+      - name: Confere se a API está no ar
+        run: |
+          for i in $(seq 1 10); do
+            if curl -sf --max-time 15 "${{ vars.NEXT_PUBLIC_API_URL }}/artworks" > /dev/null; then
+              echo "API ok"; exit 0
+            fi
+            echo "tentativa $i falhou, aguardando..."; sleep 15
+          done
+          echo "::error::API indisponível em ${{ vars.NEXT_PUBLIC_API_URL }} — faça o deploy do backend no Render antes (render.yaml na raiz do repo)."
+          exit 1
+
       - name: Build estático
         working-directory: frontend
         env:
