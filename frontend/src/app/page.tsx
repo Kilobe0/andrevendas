@@ -2,7 +2,7 @@ import { getFeaturedArtworks, getCategories } from '@/lib/api';
 import ArtworkCard from '@/components/gallery/ArtworkCard';
 import Link from 'next/link';
 import Image from 'next/image';
-import { getImageUrl, formatPrice } from '@/lib/api';
+import { getImageUrl } from '@/lib/api';
 import styles from './page.module.css';
 
 export default async function HomePage() {
@@ -32,7 +32,6 @@ export default async function HomePage() {
                 <Link href={`/obra/${hero.slug}`} className="btn btn-primary" id="hero-cta">
                   Ver obra
                 </Link>
-                <span className={styles.heroPrice}>{formatPrice(hero.price)}</span>
               </div>
             </div>
 
@@ -95,7 +94,7 @@ export default async function HomePage() {
                   className={styles.gridItem}
                   style={{ animationDelay: `${i * 0.1}s` }}
                 >
-                  <ArtworkCard artwork={artwork} priority={i < 2} />
+                  <ArtworkCard artwork={artwork} priority={i < 2} showPrice={false} />
                 </div>
               ))}
             </div>

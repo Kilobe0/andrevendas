@@ -70,14 +70,6 @@
   gap: var(--sp-8);
 }
 
-.heroPrice {
-  font-family: var(--font-display);
-  font-size: var(--text-xl);
-  font-weight: 400;
-  color: var(--text);
-  letter-spacing: -0.01em;
-}
-
 /* Obra emoldurada — revelação em cortina, formato natural da obra */
 .heroFigure {
   display: flex;

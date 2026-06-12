@@ -6,9 +6,10 @@ import styles from './ArtworkCard.module.css';
 interface Props {
   artwork: Artwork;
   priority?: boolean;
+  showPrice?: boolean;
 }
 
-export default function ArtworkCard({ artwork, priority = false }: Props) {
+export default function ArtworkCard({ artwork, priority = false, showPrice = true }: Props) {
   const isAvailable = artwork.status === 'AVAILABLE';
 
   return (
@@ -39,7 +40,7 @@ export default function ArtworkCard({ artwork, priority = false }: Props) {
             {isAvailable ? 'Disponível' : 'Vendida'}
           </span>
         </div>
-        <div className={styles.price}>{formatPrice(artwork.price)}</div>
+        {showPrice && <div className={styles.price}>{formatPrice(artwork.price)}</div>}
       </div>
     </Link>
   );
