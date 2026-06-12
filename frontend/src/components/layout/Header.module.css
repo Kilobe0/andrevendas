@@ -1,0 +1,223 @@
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--z-sticky, 100);
+  padding: var(--sp-6) 0;
+  border-bottom: 1px solid transparent;
+  transition:
+    background var(--transition-slow),
+    border-color var(--transition-slow),
+    padding var(--transition-slow),
+    backdrop-filter var(--transition-slow);
+}
+
+.header.scrolled {
+  background: rgba(242, 238, 229, 0.92);
+  backdrop-filter: blur(14px) saturate(1.2);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  border-bottom-color: var(--text);
+  padding: var(--sp-4) 0;
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 0 var(--sp-10);
+}
+
+/* ── Logo — wordmark de impresso ──────────────────────────── */
+.logo {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.logoMain {
+  font-family: var(--font-title);
+  font-size: var(--text-xl);
+  font-weight: 500;
+  font-style: italic;
+  color: var(--text);
+  letter-spacing: -0.01em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.logoSub {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  font-weight: 500;
+  color: var(--text-muted);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+/* ── Nav desktop — índice de catálogo ─────────────────────── */
+.nav {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-10);
+}
+
+.navLink {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  font-weight: 500;
+  color: var(--text-secondary);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  position: relative;
+  padding: var(--sp-1) 0;
+  transition: color var(--transition);
+}
+
+.navLink::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--text);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.35s var(--ease);
+}
+
+.navLink:hover {
+  color: var(--text);
+}
+
+.navLink:hover::after,
+.navLink.active::after {
+  transform: scaleX(1);
+}
+
+.navLink.active {
+  color: var(--text);
+}
+
+/* ── Ações ────────────────────────────────────────────────── */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex-shrink: 0;
+}
+
+.cartBtn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  color: var(--text);
+  transition: color var(--transition);
+}
+
+.cartBtn:hover {
+  color: var(--accent);
+}
+
+.cartBtn:active {
+  transform: scale(0.95);
+  transition: transform 0.1s;
+}
+
+.cartBadge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: var(--accent);
+  color: var(--text-on-dark);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 500;
+  min-width: 16px;
+  height: 16px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+  animation: scaleIn 0.2s var(--ease) both;
+}
+
+/* ── Menu mobile ──────────────────────────────────────────── */
+.menuToggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  width: 40px;
+  height: 40px;
+  color: var(--text);
+}
+
+.menuLine {
+  display: block;
+  width: 22px;
+  height: 1px;
+  background: currentColor;
+  transition:
+    transform 0.3s var(--ease),
+    opacity 0.2s ease;
+  transform-origin: center;
+}
+
+.menuLine.open:first-child  { transform: rotate(45deg) translate(4.5px, 4.5px); }
+.menuLine.open:last-child   { transform: rotate(-45deg) translate(4.5px, -4.5px); }
+
+.mobileNav {
+  display: flex;
+  flex-direction: column;
+  background: rgba(242, 238, 229, 0.98);
+  backdrop-filter: blur(14px);
+  border-top: 1px solid var(--text);
+  animation: fadeDown 0.2s var(--ease) both;
+  padding: var(--sp-2) var(--sp-5);
+}
+
+.mobileNavLink {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--text-secondary);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: var(--sp-4) var(--sp-2);
+  border-bottom: 1px solid var(--border-light);
+  transition: color var(--transition), padding-left var(--transition);
+}
+
+.mobileNavLink:last-child { border-bottom: none; }
+
+.mobileNavLink:hover {
+  color: var(--accent);
+  padding-left: var(--sp-4);
+}
+
+/* ── Responsivo ───────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .nav { display: none; }
+  .menuToggle { display: flex; }
+}
+
+@media (min-width: 901px) {
+  .mobileNav { display: none !important; }
+}
+
+@media (max-width: 480px) {
+  .inner { padding: 0 var(--sp-5); }
+  .logoMain { font-size: var(--text-lg); }
+}

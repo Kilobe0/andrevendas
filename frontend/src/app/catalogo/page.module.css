@@ -1,0 +1,255 @@
+.page {
+  padding-top: var(--sp-24);
+  min-height: 100vh;
+}
+
+/* ── Cabeçalho da página ──────────────────────────────────── */
+.pageHeader {
+  padding: var(--sp-16) 0 var(--sp-10);
+  border-bottom: 1px solid var(--text);
+  margin-bottom: var(--sp-12);
+}
+
+.pageTitle {
+  font-family: var(--font-display);
+  font-size: clamp(2.75rem, 6vw, 5rem);
+  font-weight: 300;
+  font-style: italic;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: var(--text);
+  margin: var(--sp-5) 0 var(--sp-4);
+}
+
+.pageDesc {
+  font-size: var(--text-md);
+  color: var(--text-muted);
+  max-width: 480px;
+}
+
+/* ── Layout ───────────────────────────────────────────────── */
+.layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: var(--sp-16);
+  align-items: start;
+  padding-bottom: var(--sp-24);
+}
+
+/* ── Sidebar — índice de filtros ──────────────────────────── */
+.sidebar {
+  position: sticky;
+  top: calc(var(--sp-24) + var(--sp-4));
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-10);
+}
+
+.filterSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.filterTitle {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding-bottom: var(--sp-2);
+  border-bottom: 1px solid var(--border);
+}
+
+.filterOptions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sp-1);
+}
+
+.filterBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  padding: var(--sp-1) 0;
+  text-align: left;
+  transition: color var(--transition);
+}
+
+.filterBtn:hover {
+  color: var(--text);
+}
+
+.filterBtn.active {
+  color: var(--text);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--text-base);
+}
+
+.filterBtnDot {
+  width: 16px;
+  height: 1px;
+  background: var(--accent);
+  order: -1;
+}
+
+.clearBtn {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  text-align: left;
+  padding: var(--sp-2) 0;
+  border-bottom: 1px solid var(--accent);
+  align-self: flex-start;
+  transition: color var(--transition), border-color var(--transition);
+}
+
+.clearBtn:hover {
+  color: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+
+/* ── Área do grid ─────────────────────────────────────────── */
+.gridArea {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-8);
+}
+
+.resultsBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  padding-bottom: var(--sp-4);
+  border-bottom: 1px solid var(--border);
+}
+
+.resultsCount {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.activeFilters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+.filterChip {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  letter-spacing: 0.1em;
+  color: var(--text);
+  padding: 4px var(--sp-3);
+  border: 1px solid var(--text);
+  transition: background var(--transition), color var(--transition);
+}
+
+.filterChip:hover {
+  background: var(--text);
+  color: var(--text-on-dark);
+}
+
+/* ── Grid ─────────────────────────────────────────────────── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--sp-12) var(--sp-8);
+}
+
+.gridItem {
+  animation: fadeUp 0.5s var(--ease) both;
+}
+
+/* ── Skeleton ─────────────────────────────────────────────── */
+.skeletonCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.skeletonImage {
+  aspect-ratio: 3 / 4;
+  background: linear-gradient(90deg, var(--bg-alt) 0%, #E0D9C9 40%, var(--bg-alt) 80%);
+  background-size: 800px 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+
+.skeletonLine,
+.skeletonLineShort {
+  height: 14px;
+  background: linear-gradient(90deg, var(--bg-alt) 0%, #E0D9C9 40%, var(--bg-alt) 80%);
+  background-size: 800px 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+}
+
+.skeletonLine { width: 75%; }
+.skeletonLineShort { width: 40%; }
+
+/* ── Vazio ────────────────────────────────────────────────── */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-4);
+  padding: var(--sp-24) var(--sp-8);
+  text-align: center;
+  border: 1px solid var(--border);
+}
+
+.emptyIcon {
+  font-size: var(--text-2xl);
+  color: var(--text-faint);
+}
+
+.emptyTitle {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--text-xl);
+  font-weight: 400;
+  color: var(--text);
+}
+
+.emptyText {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  margin-bottom: var(--sp-2);
+}
+
+/* ── Responsivo ───────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+    gap: var(--sp-10);
+  }
+  .sidebar {
+    position: static;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--sp-8);
+    padding-bottom: var(--sp-6);
+    border-bottom: 1px solid var(--border);
+  }
+  .filterSection { min-width: 160px; }
+}
+
+@media (max-width: 600px) {
+  .grid { grid-template-columns: 1fr; }
+}

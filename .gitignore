@@ -1,0 +1,15 @@
+# placeholders locais — as imagens reais ficam no banco
+obras/
+
+# ambiente
+.env
+.env.local
+
+# dependências e builds
+node_modules/
+dist/
+.next/
+
+# sistema
+.DS_Store
+Thumbs.db

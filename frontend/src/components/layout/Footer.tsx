@@ -1,0 +1,44 @@
+import Link from 'next/link';
+import styles from './Footer.module.css';
+
+export default function Footer() {
+  return (
+    <footer className={styles.footer}>
+      <div className={styles.wordmarkWrap} aria-hidden="true">
+        <span className={styles.wordmark}>André Valença</span>
+      </div>
+
+      <div className={styles.inner}>
+        <div className={styles.brand}>
+          <span className={styles.brandName}>Galeria de Arte</span>
+          <p className={styles.brandDesc}>
+            Lorem ipsum dolor sit amet.<br />
+            Consectetur adipiscing elit.
+          </p>
+        </div>
+
+        <div className={styles.links}>
+          <div className={styles.linkGroup}>
+            <span className={styles.groupTitle}>Galeria</span>
+            <Link href="/catalogo">Catálogo</Link>
+            <Link href="/catalogo?categoria=esculturas">Esculturas</Link>
+            <Link href="/catalogo?categoria=pinturas-em-tela">Pinturas em Tela</Link>
+            <Link href="/catalogo?categoria=desenhos">Desenhos</Link>
+          </div>
+          <div className={styles.linkGroup}>
+            <span className={styles.groupTitle}>Institucional</span>
+            <Link href="/artista">O Artista</Link>
+            <Link href="/contato">Contato</Link>
+          </div>
+        </div>
+      </div>
+
+      <div className={styles.bottom}>
+        <p>© {new Date().getFullYear()} André Valença. Todos os direitos reservados.</p>
+        <p className={styles.bottomRight}>
+          Lorem ipsum · Dolor sit amet
+        </p>
+      </div>
+    </footer>
+  );
+}

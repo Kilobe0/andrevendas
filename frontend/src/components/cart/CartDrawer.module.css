@@ -1,0 +1,267 @@
+/* ── Overlay ──────────────────────────────────────────────── */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(28, 24, 19, 0.45);
+  z-index: var(--z-overlay);
+  animation: fadeIn 0.25s var(--ease-out) both;
+}
+
+/* ── Gaveta ───────────────────────────────────────────────── */
+.drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(440px, 100vw);
+  background: var(--bg);
+  border-left: 1px solid var(--text);
+  z-index: var(--z-modal);
+  display: flex;
+  flex-direction: column;
+  animation: slideInRight 0.4s var(--ease) both;
+  box-shadow: var(--shadow-lg);
+}
+
+/* ── Cabeçalho ────────────────────────────────────────────── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sp-6) var(--sp-6) var(--sp-5);
+  border-bottom: 1px solid var(--text);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--text-xl);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+.itemCount {
+  font-family: var(--font-mono);
+  font-style: normal;
+  font-size: var(--text-2xs);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-left: var(--sp-2);
+}
+
+.closeBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  color: var(--text);
+  transition: color var(--transition), transform 0.3s var(--ease);
+}
+
+.closeBtn:hover {
+  color: var(--accent);
+  transform: rotate(90deg);
+}
+
+/* ── Corpo ────────────────────────────────────────────────── */
+.body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+/* ── Vazio ────────────────────────────────────────────────── */
+.empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-3);
+  padding: var(--sp-10);
+  text-align: center;
+}
+
+.emptyIcon {
+  font-size: var(--text-2xl);
+  color: var(--text-faint);
+}
+
+.emptyText {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--text-lg);
+  color: var(--text);
+}
+
+.emptyHint {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  line-height: 1.6;
+  max-width: 260px;
+}
+
+/* ── Itens ────────────────────────────────────────────────── */
+.items {
+  flex: 1;
+  padding: var(--sp-4) var(--sp-6);
+}
+
+.item {
+  display: flex;
+  gap: var(--sp-4);
+  padding: var(--sp-4) 0;
+  border-bottom: 1px solid var(--border);
+  animation: fadeUp 0.3s var(--ease) both;
+}
+
+.itemImage {
+  position: relative;
+  width: 72px;
+  height: 90px;
+  flex-shrink: 0;
+  overflow: hidden;
+  background: var(--bg-alt);
+}
+
+.itemInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  min-width: 0;
+}
+
+.itemTitle {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--text-md);
+  color: var(--text);
+  line-height: 1.25;
+}
+
+.itemMaterial {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.itemPrice {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--text);
+  margin-top: auto;
+}
+
+.removeBtn {
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  color: var(--text-faint);
+  transition: color var(--transition);
+}
+
+.removeBtn:hover {
+  color: var(--error);
+}
+
+/* ── Rodapé / Checkout ────────────────────────────────────── */
+.footer {
+  padding: var(--sp-6);
+  border-top: 1px solid var(--text);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  background: var(--surface);
+}
+
+.totalRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.totalLabel {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.totalValue {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: 300;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+.checkoutBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-3);
+  width: 100%;
+  padding: var(--sp-5) var(--sp-8);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  background: var(--text);
+  color: var(--text-on-dark);
+  border: 1px solid var(--text);
+  transition: background var(--transition), border-color var(--transition);
+}
+
+.checkoutBtn:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.checkoutArrow {
+  transition: transform 0.3s var(--ease);
+}
+
+.checkoutBtn:hover .checkoutArrow {
+  transform: translateX(4px);
+}
+
+.secureNote {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+
+.clearBtn {
+  font-size: var(--text-xs);
+  color: var(--text-faint);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-decoration-color: var(--border);
+  align-self: center;
+  transition: color var(--transition);
+}
+
+.clearBtn:hover {
+  color: var(--error);
+  text-decoration-color: var(--error);
+}

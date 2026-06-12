@@ -1,0 +1,120 @@
+.footer {
+  background-color: var(--bg-deep);
+  color: rgba(242, 238, 229, 0.65);
+  margin-top: var(--space-24);
+  overflow: hidden;
+}
+
+/* ── Wordmark gigante — assinatura de fechamento ──────────── */
+.wordmarkWrap {
+  display: flex;
+  justify-content: center;
+  padding: var(--sp-20) var(--sp-8) 0;
+  border-bottom: 1px solid rgba(242, 238, 229, 0.18);
+  user-select: none;
+}
+
+.wordmark {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(3rem, 11vw, 10rem);
+  line-height: 0.85;
+  letter-spacing: -0.03em;
+  color: var(--text-on-dark);
+  white-space: nowrap;
+  transform: translateY(0.08em);
+  opacity: 0.92;
+}
+
+.inner {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-16);
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: var(--space-16) var(--space-10);
+}
+
+.brand { max-width: 280px; }
+
+.brandName {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--text-on-dark);
+  margin-bottom: var(--space-4);
+}
+
+.brandDesc {
+  font-size: var(--text-sm);
+  color: rgba(242, 238, 229, 0.55);
+  line-height: 1.7;
+}
+
+.links {
+  display: flex;
+  gap: var(--space-20);
+}
+
+.linkGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.linkGroup a {
+  font-size: var(--text-sm);
+  color: rgba(242, 238, 229, 0.55);
+  transition: color var(--transition);
+}
+
+.linkGroup a:hover { color: var(--accent-warm); }
+
+.groupTitle {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  font-weight: 500;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--text-on-dark);
+  margin-bottom: var(--space-2);
+}
+
+.bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: var(--space-5) var(--space-10);
+  border-top: 1px solid rgba(242, 238, 229, 0.18);
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  letter-spacing: 0.08em;
+  color: rgba(242, 238, 229, 0.45);
+}
+
+.bottomRight {
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 768px) {
+  .wordmarkWrap { padding: var(--sp-12) var(--sp-4) 0; }
+  .inner {
+    flex-direction: column;
+    gap: var(--space-10);
+    padding: var(--space-12) var(--space-5);
+  }
+  .links { flex-wrap: wrap; gap: var(--space-10); }
+  .bottom {
+    flex-direction: column;
+    gap: var(--space-2);
+    text-align: center;
+    padding: var(--space-5);
+  }
+}

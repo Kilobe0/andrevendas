@@ -1,0 +1,166 @@
+.page { padding-top: 80px; }
+
+/* ── Hero — frontispício ──────────────────────────────────── */
+.hero {
+  padding: var(--space-24) 0 var(--space-16);
+  border-bottom: 1px solid var(--text);
+}
+
+.heroText {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 0 var(--sp-10);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+}
+
+.heroTitle {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 8vw, 6rem);
+  font-weight: 300;
+  font-style: italic;
+  letter-spacing: -0.025em;
+  line-height: 0.95;
+  color: var(--text);
+}
+
+.heroSubtitle {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.heroDivider { display: none; }
+
+/* ── Conteúdo — corpo de ensaio ───────────────────────────── */
+.content {
+  padding: var(--space-16) 0 var(--space-24);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.section p {
+  font-size: var(--text-md);
+  color: var(--text-secondary);
+  line-height: 1.85;
+  max-width: 680px;
+}
+
+.section p::first-letter {
+  font-family: var(--font-display);
+}
+
+.sectionTitle {
+  font-family: var(--font-title);
+  font-size: var(--text-2xl);
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  color: var(--text);
+  margin-bottom: var(--sp-2);
+}
+
+/* ── Citação — voz do artista ─────────────────────────────── */
+.quote {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 300;
+  font-style: italic;
+  letter-spacing: -0.01em;
+  line-height: 1.45;
+  color: var(--text);
+  padding: var(--sp-10) 0 var(--sp-10) var(--sp-10);
+  border-left: 1px solid var(--accent);
+  max-width: 760px;
+}
+
+.quote cite {
+  display: block;
+  font-family: var(--font-mono);
+  font-style: normal;
+  font-size: var(--text-2xs);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-top: var(--sp-6);
+}
+
+/* ── Linha do tempo — registro de catálogo ────────────────── */
+.timeline {
+  display: flex;
+  flex-direction: column;
+}
+
+.timelineItem {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  gap: var(--sp-8);
+  padding: var(--sp-5) 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.timelineItem:last-child {
+  border-bottom: none;
+}
+
+.timelineYear {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+
+.timelineContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+.timelineContent strong {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: var(--text-md);
+  color: var(--text);
+  letter-spacing: -0.005em;
+}
+
+.timelineContent span {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+/* ── CTA ──────────────────────────────────────────────────── */
+.cta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sp-6);
+  padding: var(--sp-8) 0 0;
+}
+
+.cta p {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--text-lg);
+  color: var(--text-secondary);
+  max-width: 480px;
+  line-height: 1.5;
+}
+
+/* ── Responsivo ───────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .heroText { padding: 0 var(--sp-5); }
+  .quote { padding-left: var(--sp-5); }
+  .timelineItem { grid-template-columns: 72px 1fr; gap: var(--sp-4); }
+}
