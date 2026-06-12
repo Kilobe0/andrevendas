@@ -34,7 +34,7 @@ jobs:
         working-directory: frontend
         run: npm ci
 
-      # O free tier do Render hiberna — este passo também serve de "wake up"
+      # A máquina do Fly hiberna (auto stop/start) — este passo também serve de "wake up"
       - name: Confere se a API está no ar
         run: |
           for i in $(seq 1 10); do
@@ -43,7 +43,7 @@ jobs:
             fi
             echo "tentativa $i falhou, aguardando..."; sleep 15
           done
-          echo "::error::API indisponível em ${{ vars.NEXT_PUBLIC_API_URL }} — faça o deploy do backend no Render antes (render.yaml na raiz do repo)."
+          echo "::error::API indisponível em ${{ vars.NEXT_PUBLIC_API_URL }} — faça o deploy do backend no Fly antes (flyctl deploy em backend/)."
           exit 1
 
       - name: Build estático
