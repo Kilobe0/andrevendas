@@ -14,7 +14,7 @@ export default function ContatoPage() {
 
   return (
     <div className={styles.page}>
-      <div className={styles.hero}>
+      <div className={styles.hero} data-header-divider>
         <div className="container--narrow">
           <span className="label">Fale conosco</span>
           <h1 className={styles.heroTitle}>Contato</h1>

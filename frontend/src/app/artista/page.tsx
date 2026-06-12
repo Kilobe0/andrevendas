@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 export default function ArtistaPage() {
   return (
     <div className={styles.page}>
-      <div className={styles.hero}>
+      <div className={styles.hero} data-header-divider>
         <div className={styles.heroText}>
           <span className="label">O artista</span>
           <h1 className={styles.heroTitle}>André Valença</h1>

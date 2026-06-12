@@ -18,7 +18,7 @@ export default async function HomePage() {
     <>
       {/* ── HERO — composição editorial ──────────────────── */}
       {hero && (
-        <section className={styles.hero}>
+        <section className={styles.hero} data-header-divider>
           <div className={styles.heroInner}>
             <div className={styles.heroContent}>
               <span className={styles.heroIndex}>Nº 001 — Em exposição</span>
