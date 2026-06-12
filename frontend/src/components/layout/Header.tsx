@@ -1,6 +1,7 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useCart } from '@/lib/cart';
 import styles from './Header.module.css';
 
@@ -12,17 +13,41 @@ const NAV_LINKS = [
 
 export default function Header() {
   const { count, openCart } = useCart();
+  const pathname = usePathname();
+  const headerRef = useRef<HTMLElement>(null);
   const [scrolled, setScrolled] = useState(false);
+  // Páginas com [data-header-divider] têm divisor próprio; enquanto ele
+  // estiver visível abaixo da navbar, o divisor da navbar fica apagado
+  const [dividerSuppressed, setDividerSuppressed] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
-    window.addEventListener('scroll', onScroll);
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
+    const update = () => {
+      setScrolled(window.scrollY > 40);
+      const sentinel = document.querySelector('[data-header-divider]');
+      if (sentinel && headerRef.current) {
+        const headerBottom = headerRef.current.getBoundingClientRect().bottom;
+        setDividerSuppressed(sentinel.getBoundingClientRect().bottom > headerBottom);
+      } else {
+        setDividerSuppressed(false);
+      }
+    };
+    update();
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    return () => {
+      window.removeEventListener('scroll', update);
+      window.removeEventListener('resize', update);
+    };
+  }, [pathname]);
+
+  const showDivider = scrolled && !dividerSuppressed;
 
   return (
-    <header className={`${styles.header} ${scrolled ? styles.scrolled : ''}`}>
+    <header
+      ref={headerRef}
+      className={`${styles.header} ${scrolled ? styles.scrolled : ''} ${showDivider ? styles.withDivider : ''}`}
+    >
       <div className={styles.inner}>
         {/* Logo */}
         <Link href="/" className={styles.logo}>

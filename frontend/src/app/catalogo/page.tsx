@@ -59,7 +59,7 @@ function CatalogoContent() {
   return (
     <div className={styles.page}>
       {/* Page Header */}
-      <div className={styles.pageHeader}>
+      <div className={styles.pageHeader} data-header-divider>
         <div className="container">
           <span className="label">Galeria</span>
           <h1 className={styles.pageTitle}>Catálogo de Obras</h1>

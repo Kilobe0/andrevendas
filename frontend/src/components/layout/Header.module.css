@@ -17,8 +17,13 @@
   background: rgba(242, 238, 229, 0.92);
   backdrop-filter: blur(14px) saturate(1.2);
   -webkit-backdrop-filter: blur(14px) saturate(1.2);
-  border-bottom-color: var(--text);
   padding: var(--sp-4) 0;
+}
+
+/* Divisor independente do estado scrolled: só acende quando o divisor
+   da página ([data-header-divider]) já saiu de trás da navbar */
+.header.withDivider {
+  border-bottom-color: var(--text);
 }
 
 .inner {

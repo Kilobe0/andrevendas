@@ -110,7 +110,7 @@ export default function CheckoutPage() {
   return (
     <div className={styles.page}>
       {/* Header */}
-      <div className={styles.pageHeader}>
+      <div className={styles.pageHeader} data-header-divider>
         <div className="container--narrow">
           <span className="label">Compra</span>
           <h1 className={styles.pageTitle}>Finalizar Compra</h1>

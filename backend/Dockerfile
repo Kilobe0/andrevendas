@@ -12,5 +12,7 @@ WORKDIR /app
 ENV NODE_ENV=production
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
+# imagens das obras versionadas no repo (main.ts serve em /uploads)
+COPY --from=build /app/uploads ./uploads
 EXPOSE 3001
 CMD ["node", "dist/main"]
