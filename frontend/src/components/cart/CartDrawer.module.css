@@ -2,7 +2,7 @@
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(28, 24, 19, 0.45);
+  background: var(--scrim);
   z-index: var(--z-overlay);
   animation: fadeIn 0.25s var(--ease-out) both;
 }
@@ -222,7 +222,7 @@
   letter-spacing: 0.2em;
   text-transform: uppercase;
   background: var(--text);
-  color: var(--text-on-dark);
+  color: var(--text-inverse);
   border: 1px solid var(--text);
   transition: background var(--transition), border-color var(--transition);
 }

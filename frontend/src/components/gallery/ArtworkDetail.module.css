@@ -77,7 +77,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(242, 238, 229, 0.55);
+  background: var(--paper-veil);
 }
 
 .soldOverlayText {
@@ -326,7 +326,7 @@
   letter-spacing: 0.2em;
   text-transform: uppercase;
   background: var(--text);
-  color: var(--text-on-dark);
+  color: var(--text-inverse);
   border: 1px solid var(--text);
   transition: background var(--transition), border-color var(--transition);
 }
@@ -348,7 +348,7 @@
 
 .btnBuyPrimary.inCart:hover {
   background: var(--text);
-  color: var(--text-on-dark);
+  color: var(--text-inverse);
   border-color: var(--text);
 }
 
@@ -379,7 +379,7 @@
 
 .btnBuyNow:hover {
   background: var(--text);
-  color: var(--text-on-dark);
+  color: var(--text-inverse);
 }
 
 /* ── Garantia ─────────────────────────────────────────────── */

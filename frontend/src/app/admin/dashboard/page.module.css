@@ -18,7 +18,7 @@
 
 .sidebarBrand {
   padding: 0 var(--space-6) var(--space-6);
-  border-bottom: 1px solid rgba(255,255,255,0.08);
+  border-bottom: 1px solid color-mix(in srgb, var(--text-inverse) 10%, transparent);
   margin-bottom: var(--space-5);
   display: flex;
   flex-direction: column;
@@ -60,12 +60,12 @@
   letter-spacing: 0.04em;
 }
 
-.navItem:hover { background: rgba(255,255,255,0.06); color: var(--bg); }
+.navItem:hover { background: color-mix(in srgb, var(--text-inverse) 8%, transparent); color: var(--bg); }
 .navItem.active { background: rgba(196,133,74,0.2); color: var(--accent-warm); }
 
 .sidebarFooter {
   padding: var(--space-5) var(--space-6);
-  border-top: 1px solid rgba(255,255,255,0.08);
+  border-top: 1px solid color-mix(in srgb, var(--text-inverse) 10%, transparent);
   display: flex;
   align-items: center;
   justify-content: space-between;

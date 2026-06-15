@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCart } from '@/lib/cart';
+import ThemeToggle from './ThemeToggle';
 import styles from './Header.module.css';
 
 const NAV_LINKS = [
@@ -66,6 +67,7 @@ export default function Header() {
 
         {/* Actions */}
         <div className={styles.actions}>
+          <ThemeToggle />
           <button
             onClick={openCart}
             className={styles.cartBtn}

@@ -55,7 +55,7 @@
 
 .step.stepActive .stepNum {
   background: var(--text);
-  color: var(--text-on-dark);
+  color: var(--text-inverse);
   border-color: var(--text);
 }
 
@@ -251,7 +251,7 @@
   width: 100%;
   padding: var(--sp-5) var(--sp-8);
   background: var(--text);
-  color: var(--text-on-dark);
+  color: var(--text-inverse);
   border: none;
   border-radius: var(--radius-md);
   font-family: var(--font-body);
@@ -295,8 +295,8 @@
 .spinner {
   width: 18px;
   height: 18px;
-  border: 2px solid rgba(255,255,255,0.35);
-  border-top-color: white;
+  border: 2px solid color-mix(in srgb, var(--text-inverse) 35%, transparent);
+  border-top-color: var(--text-inverse);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
   flex-shrink: 0;

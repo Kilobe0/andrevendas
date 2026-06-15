@@ -44,8 +44,18 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  // Aplica o tema antes do primeiro paint para não piscar claro→escuro
+  const themeScript = `(function(){try{var t=localStorage.getItem('theme');if(t!=='dark'&&t!=='light'){t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.dataset.theme=t}catch(e){}})()`;
+
   return (
-    <html lang="pt-BR" className={`${serif.variable} ${sans.variable} ${mono.variable}`}>
+    <html
+      lang="pt-BR"
+      className={`${serif.variable} ${sans.variable} ${mono.variable}`}
+      suppressHydrationWarning
+    >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body>
         <CartProvider>
           <Header />

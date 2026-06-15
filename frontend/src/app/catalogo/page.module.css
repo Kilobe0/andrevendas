@@ -160,7 +160,7 @@
 
 .filterChip:hover {
   background: var(--text);
-  color: var(--text-on-dark);
+  color: var(--text-inverse);
 }
 
 /* ── Grid ─────────────────────────────────────────────────── */
@@ -183,7 +183,7 @@
 
 .skeletonImage {
   aspect-ratio: 3 / 4;
-  background: linear-gradient(90deg, var(--bg-alt) 0%, #E0D9C9 40%, var(--bg-alt) 80%);
+  background: linear-gradient(90deg, var(--bg-alt) 0%, var(--skeleton-hi) 40%, var(--bg-alt) 80%);
   background-size: 800px 100%;
   animation: shimmer 1.6s ease-in-out infinite;
 }
@@ -191,7 +191,7 @@
 .skeletonLine,
 .skeletonLineShort {
   height: 14px;
-  background: linear-gradient(90deg, var(--bg-alt) 0%, #E0D9C9 40%, var(--bg-alt) 80%);
+  background: linear-gradient(90deg, var(--bg-alt) 0%, var(--skeleton-hi) 40%, var(--bg-alt) 80%);
   background-size: 800px 100%;
   animation: shimmer 1.6s ease-in-out infinite;
 }
