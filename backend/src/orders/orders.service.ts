@@ -1,29 +1,48 @@
 import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+import {
+  IsString, IsEmail, IsOptional, IsArray, IsNotEmpty, ValidateNested,
+} from 'class-validator';
+import { Type } from 'class-transformer';
 import { Order, OrderDocument, OrderStatus } from './order.schema';
 import { ArtworksService } from '../artworks/artworks.service';
 import { ArtworkStatus } from '../artworks/artwork.schema';
 import { MercadoPagoService } from '../payments/mercadopago.service';
 
+// Decorators são obrigatórios: o ValidationPipe global (whitelist: true) descarta
+// qualquer propriedade sem validação — sem isso o dto chega vazio no serviço.
+class OrderAddressDto {
+  @IsOptional() @IsString() street?: string;
+  @IsOptional() @IsString() number?: string;
+  @IsOptional() @IsString() complement?: string;
+  @IsOptional() @IsString() neighborhood?: string;
+  @IsOptional() @IsString() city?: string;
+  @IsOptional() @IsString() state?: string;
+  @IsOptional() @IsString() zipCode?: string;
+}
+
+class OrderCustomerDto {
+  @IsString() @IsNotEmpty() name: string;
+  @IsEmail() email: string;
+  @IsOptional() @IsString() phone?: string;
+  @IsString() @IsNotEmpty() cpf: string;
+  @ValidateNested() @Type(() => OrderAddressDto) address: OrderAddressDto;
+}
+
+class OrderItemDto {
+  @IsString() @IsNotEmpty() artworkId: string;
+  @IsOptional() @IsString() variant?: string;
+}
+
 export class CreateOrderDto {
-  paymentMethod: 'PIX' | 'CREDIT_CARD' | 'BOLETO';
-  customer: {
-    name: string;
-    email: string;
-    phone: string;
-    cpf: string;
-    address: {
-      street: string;
-      number: string;
-      complement?: string;
-      neighborhood: string;
-      city: string;
-      state: string;
-      zipCode: string;
-    };
-  };
-  items: Array<{ artworkId: string; variant?: string }>;
+  // O método de pagamento não é escolhido aqui — quem decide é o Checkout Pro.
+  // Ele é capturado do Mercado Pago no webhook (ver handleWebhook).
+  @ValidateNested() @Type(() => OrderCustomerDto)
+  customer: OrderCustomerDto;
+
+  @IsArray() @ValidateNested({ each: true }) @Type(() => OrderItemDto)
+  items: OrderItemDto[];
 }
 
 @Injectable()
@@ -74,7 +93,6 @@ export class OrdersService {
     }
 
     const order = await this.orderModel.create({
-      paymentMethod: dto.paymentMethod as any,
       customer: dto.customer,
       items: orderItems,
       totalAmount: total,
@@ -144,6 +162,7 @@ export class OrdersService {
       }
       order.status = OrderStatus.PAID;
       order.paymentId = payment.id;
+      if (payment.paymentTypeId) order.paymentMethod = payment.paymentTypeId;
       await order.save();
       this.logger.log(`Pedido ${orderId} confirmado (pagamento ${payment.id}).`);
     } else if (payment.status === 'rejected' || payment.status === 'cancelled') {

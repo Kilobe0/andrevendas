@@ -48,7 +48,9 @@ export interface Artwork {
 export interface Order {
   _id: string;
   status: 'PENDING' | 'PAID' | 'CANCELLED';
-  paymentMethod: 'PIX' | 'CREDIT_CARD' | 'BOLETO';
+  // Capturado do Mercado Pago no webhook (account_money, credit_card,
+  // bank_transfer, ticket...). Vazio enquanto PENDING.
+  paymentMethod?: string;
   totalAmount: number;
   customer: {
     name: string;
@@ -107,7 +109,6 @@ export const getCategories = () => apiFetch<Category[]>('/categories');
 
 // ─── Orders ──────────────────────────────────────────────
 export const createOrder = (data: {
-  paymentMethod: string;
   customer: Order['customer'];
   items: Array<{ artworkId: string; variant?: string }>;
 }) =>

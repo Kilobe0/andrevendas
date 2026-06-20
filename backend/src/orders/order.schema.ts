@@ -9,12 +9,6 @@ export enum OrderStatus {
   CANCELLED = 'CANCELLED',
 }
 
-export enum PaymentMethod {
-  PIX = 'PIX',
-  CREDIT_CARD = 'CREDIT_CARD',
-  BOLETO = 'BOLETO',
-}
-
 @Schema()
 class Address {
   @Prop() street: string;
@@ -51,8 +45,11 @@ export class Order {
   @Prop({ type: String, enum: OrderStatus, default: OrderStatus.PENDING })
   status: OrderStatus;
 
-  @Prop({ type: String, enum: PaymentMethod, required: true })
-  paymentMethod: PaymentMethod;
+  // Método real capturado do Mercado Pago no webhook (payment_type_id:
+  // account_money, credit_card, debit_card, bank_transfer, ticket...).
+  // Vazio enquanto o pedido está PENDING.
+  @Prop()
+  paymentMethod: string;
 
   @Prop({ required: true })
   totalAmount: number;

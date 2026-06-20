@@ -6,8 +6,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import styles from './page.module.css';
 
-type PaymentMethod = 'PIX' | 'CREDIT_CARD' | 'BOLETO';
-
 interface FormData {
   name: string; email: string; phone: string; cpf: string;
   street: string; number: string; complement: string;
@@ -20,17 +18,10 @@ const EMPTY: FormData = {
   neighborhood: '', city: '', state: '', zipCode: '',
 };
 
-const PAYMENT_OPTIONS = [
-  { key: 'PIX' as PaymentMethod, icon: '◈', label: 'Pix' },
-  { key: 'CREDIT_CARD' as PaymentMethod, icon: '▣', label: 'Cartão de Crédito' },
-  { key: 'BOLETO' as PaymentMethod, icon: '≡', label: 'Boleto' },
-];
-
 export default function CheckoutPage() {
   const { items, total } = useCart();
 
   const [form, setForm] = useState<FormData>(EMPTY);
-  const [payment, setPayment] = useState<PaymentMethod>('PIX');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -64,7 +55,6 @@ export default function CheckoutPage() {
     setError('');
     try {
       const { initPoint } = await createOrder({
-        paymentMethod: payment,
         customer: {
           name: form.name, email: form.email, phone: form.phone, cpf: form.cpf,
           address: {
@@ -239,30 +229,13 @@ export default function CheckoutPage() {
           <div className={styles.formBlock}>
             <div className={styles.blockHeader}>
               <span className={styles.blockNum} aria-hidden="true">3</span>
-              <h2 className={styles.blockTitle}>Forma de pagamento</h2>
+              <h2 className={styles.blockTitle}>Pagamento</h2>
             </div>
-            <div className={styles.paymentOptions} role="radiogroup" aria-label="Método de pagamento">
-              {PAYMENT_OPTIONS.map(opt => (
-                <button
-                  key={opt.key}
-                  type="button"
-                  role="radio"
-                  className={`${styles.paymentBtn} ${payment === opt.key ? styles.paymentActive : ''}`}
-                  onClick={() => setPayment(opt.key)}
-                  aria-checked={payment === opt.key}
-                  id={`payment-${opt.key.toLowerCase()}`}
-                >
-                  <span className={styles.paymentIcon} aria-hidden="true">{opt.icon}</span>
-                  <span className={styles.paymentLabel}>{opt.label}</span>
-                </button>
-              ))}
-            </div>
-
             <div className={styles.paymentDetails}>
               <p className={styles.paymentNote}>
                 🔒 Ao confirmar, você será levado ao ambiente seguro do Mercado Pago
-                para concluir o pagamento (Pix, cartão ou boleto). A obra fica
-                reservada para você até a confirmação.
+                para escolher e concluir o pagamento (Pix, cartão ou boleto). A obra
+                fica reservada para você até a confirmação.
               </p>
             </div>
           </div>

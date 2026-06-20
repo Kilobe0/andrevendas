@@ -17,6 +17,7 @@ export interface PaymentInfo {
   id: string;
   status: string; // approved | pending | in_process | rejected | cancelled | refunded
   externalReference: string | null;
+  paymentTypeId: string | null; // account_money | credit_card | debit_card | bank_transfer | ticket
 }
 
 @Injectable()
@@ -88,6 +89,7 @@ export class MercadoPagoService {
       id: String(result.id),
       status: result.status ?? 'unknown',
       externalReference: result.external_reference ?? null,
+      paymentTypeId: result.payment_type_id ?? null,
     };
   }
 }

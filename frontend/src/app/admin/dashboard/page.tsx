@@ -130,7 +130,7 @@ export default function AdminDashboardPage() {
                   <span className={`badge ${order.status === 'PAID' ? 'badge-available' : 'badge-sold'}`}>
                     {STATUS_LABELS[order.status]}
                   </span>
-                  <span>{PAYMENT_LABELS[order.paymentMethod]}</span>
+                  <span>{order.paymentMethod ? (PAYMENT_LABELS[order.paymentMethod] ?? order.paymentMethod) : '—'}</span>
                 </div>
               ))}
             </div>
@@ -142,4 +142,11 @@ export default function AdminDashboardPage() {
 }
 
 const STATUS_LABELS: Record<string, string> = { PENDING: 'Pendente', PAID: 'Pago', CANCELLED: 'Cancelado' };
-const PAYMENT_LABELS: Record<string, string> = { PIX: 'Pix', CREDIT_CARD: 'Cartão', BOLETO: 'Boleto' };
+// Valores de payment_type_id do Mercado Pago (capturados no webhook)
+const PAYMENT_LABELS: Record<string, string> = {
+  account_money: 'Saldo MP',
+  credit_card: 'Cartão de crédito',
+  debit_card: 'Cartão de débito',
+  bank_transfer: 'Pix',
+  ticket: 'Boleto',
+};
