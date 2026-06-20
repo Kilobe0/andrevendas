@@ -4,11 +4,13 @@ import { Order, OrderSchema } from './order.schema';
 import { OrdersService } from './orders.service';
 import { OrdersController } from './orders.controller';
 import { ArtworksModule } from '../artworks/artworks.module';
+import { PaymentsModule } from '../payments/payments.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Order.name, schema: OrderSchema }]),
     ArtworksModule,
+    PaymentsModule,
   ],
   controllers: [OrdersController],
   providers: [OrdersService],

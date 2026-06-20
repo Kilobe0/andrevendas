@@ -7,6 +7,8 @@ primary_region = 'gru' # São Paulo
 [env]
   PORT = '3001'
   FRONTEND_URL = 'https://kilobe0.github.io'
+  PUBLIC_API_URL = 'https://andrevendas-api.fly.dev'
+  CHECKOUT_RETURN_URL = 'https://kilobe0.github.io/andrevendas/checkout/retorno'
 
 [http_service]
   internal_port = 3001

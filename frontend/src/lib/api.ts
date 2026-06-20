@@ -110,7 +110,11 @@ export const createOrder = (data: {
   paymentMethod: string;
   customer: Order['customer'];
   items: Array<{ artworkId: string; variant?: string }>;
-}) => apiFetch<Order>('/orders', { method: 'POST', body: JSON.stringify(data) });
+}) =>
+  apiFetch<{ order: Order; initPoint: string }>('/orders', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
 
 export const getOrders = (token: string) =>
   apiFetch<Order[]>('/orders', { headers: { Authorization: `Bearer ${token}` } });

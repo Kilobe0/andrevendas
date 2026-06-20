@@ -62,6 +62,13 @@ export class Order {
 
   @Prop({ type: [OrderItem], required: true })
   items: OrderItem[];
+
+  // Rastreamento do Mercado Pago (Checkout Pro)
+  @Prop()
+  preferenceId: string;
+
+  @Prop()
+  paymentId: string;
 }
 
 export const OrderSchema = SchemaFactory.createForClass(Order);

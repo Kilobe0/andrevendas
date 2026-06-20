@@ -73,20 +73,69 @@ export class ArtworksService {
     return artwork;
   }
 
-  // Marca uma variante específica como vendida; a obra inteira só vira SOLD
-  // quando não restar nenhuma variante disponível.
-  async markVariantAsSold(id: string, variantName: string): Promise<ArtworkDocument> {
+  // Reserva enquanto o cliente paga no Mercado Pago. A obra sai do catálogo
+  // mas não é dada como vendida até o webhook confirmar o pagamento.
+  async markAsReserved(id: string): Promise<ArtworkDocument> {
+    const artwork = await this.artworkModel
+      .findByIdAndUpdate(id, { status: ArtworkStatus.RESERVED }, { new: true })
+      .exec();
+    if (!artwork) throw new NotFoundException('Obra não encontrada');
+    return artwork;
+  }
+
+  async markVariantAsReserved(id: string, variantName: string): Promise<ArtworkDocument> {
+    return this.setVariantStatus(id, variantName, ArtworkStatus.RESERVED);
+  }
+
+  // Devolve a obra/variante ao catálogo quando o pagamento falha ou é cancelado.
+  // Só libera o que está RESERVED — nunca "desvende" algo já SOLD.
+  async release(id: string): Promise<ArtworkDocument> {
     const artwork = await this.artworkModel.findById(id).exec();
     if (!artwork) throw new NotFoundException('Obra não encontrada');
+    if (artwork.status === ArtworkStatus.RESERVED) {
+      artwork.status = ArtworkStatus.AVAILABLE;
+      await artwork.save();
+    }
+    return artwork;
+  }
 
+  async releaseVariant(id: string, variantName: string): Promise<ArtworkDocument> {
+    const artwork = await this.artworkModel.findById(id).exec();
+    if (!artwork) throw new NotFoundException('Obra não encontrada');
+    const variant = artwork.variants.find(v => v.name === variantName);
+    if (variant && variant.status === ArtworkStatus.RESERVED) {
+      variant.status = ArtworkStatus.AVAILABLE;
+    }
+    // A obra volta a ser AVAILABLE se voltou a existir alguma variante livre.
+    if (artwork.variants.some(v => v.status === ArtworkStatus.AVAILABLE)) {
+      artwork.status = ArtworkStatus.AVAILABLE;
+    }
+    return artwork.save();
+  }
+
+  // Define o status de uma variante e recalcula o status da obra: ela só fica
+  // RESERVED/SOLD quando não resta nenhuma variante disponível.
+  private async setVariantStatus(
+    id: string,
+    variantName: string,
+    status: ArtworkStatus,
+  ): Promise<ArtworkDocument> {
+    const artwork = await this.artworkModel.findById(id).exec();
+    if (!artwork) throw new NotFoundException('Obra não encontrada');
     const variant = artwork.variants.find(v => v.name === variantName);
     if (!variant) throw new NotFoundException(`Variante "${variantName}" não encontrada`);
 
-    variant.status = ArtworkStatus.SOLD;
+    variant.status = status;
     if (artwork.variants.every(v => v.status !== ArtworkStatus.AVAILABLE)) {
-      artwork.status = ArtworkStatus.SOLD;
+      artwork.status = status;
     }
     return artwork.save();
+  }
+
+  // Marca uma variante específica como vendida; a obra inteira só vira SOLD
+  // quando não restar nenhuma variante disponível.
+  async markVariantAsSold(id: string, variantName: string): Promise<ArtworkDocument> {
+    return this.setVariantStatus(id, variantName, ArtworkStatus.SOLD);
   }
 
   async seedCreate(data: Partial<Artwork> & { category: Types.ObjectId }): Promise<ArtworkDocument> {

@@ -1,6 +1,5 @@
 'use client';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { useCart } from '@/lib/cart';
 import { createOrder, formatPrice, getImageUrl } from '@/lib/api';
 import Image from 'next/image';
@@ -22,26 +21,24 @@ const EMPTY: FormData = {
 };
 
 const PAYMENT_OPTIONS = [
-  { key: 'PIX' as PaymentMethod, icon: '◈', label: 'Pix', discount: '5% off' },
-  { key: 'CREDIT_CARD' as PaymentMethod, icon: '▣', label: 'Cartão de Crédito', discount: '' },
-  { key: 'BOLETO' as PaymentMethod, icon: '≡', label: 'Boleto', discount: '' },
+  { key: 'PIX' as PaymentMethod, icon: '◈', label: 'Pix' },
+  { key: 'CREDIT_CARD' as PaymentMethod, icon: '▣', label: 'Cartão de Crédito' },
+  { key: 'BOLETO' as PaymentMethod, icon: '≡', label: 'Boleto' },
 ];
 
 export default function CheckoutPage() {
-  const { items, total, clearCart } = useCart();
-  const router = useRouter();
+  const { items, total } = useCart();
 
   const [form, setForm] = useState<FormData>(EMPTY);
   const [payment, setPayment] = useState<PaymentMethod>('PIX');
   const [loading, setLoading] = useState(false);
-  const [orderId, setOrderId] = useState('');
   const [error, setError] = useState('');
 
   const update = (k: keyof FormData, v: string) => setForm(f => ({ ...f, [k]: v }));
 
   const isValid = form.name && form.email && form.cpf;
 
-  if (items.length === 0 && !orderId) {
+  if (items.length === 0) {
     return (
       <div className={styles.page}>
         <div className="container--narrow">
@@ -60,34 +57,13 @@ export default function CheckoutPage() {
     );
   }
 
-  if (orderId) {
-    return (
-      <div className={styles.page}>
-        <div className="container--narrow">
-          <div className={styles.success}>
-            <div className={styles.successIcon} aria-hidden="true">✦</div>
-            <h1 className={styles.successTitle}>Pedido confirmado!</h1>
-            <p className={styles.successText}>
-              Obrigado pela sua aquisição. Entraremos em contato em breve com
-              os detalhes de envio e instruções de pagamento.
-            </p>
-            <span className={styles.orderId}>Pedido #{orderId.slice(-8).toUpperCase()}</span>
-            <Link href="/" className="btn btn-primary btn-lg">
-              Voltar ao início
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!isValid) return;
     setLoading(true);
     setError('');
     try {
-      const order = await createOrder({
+      const { initPoint } = await createOrder({
         paymentMethod: payment,
         customer: {
           name: form.name, email: form.email, phone: form.phone, cpf: form.cpf,
@@ -98,11 +74,11 @@ export default function CheckoutPage() {
         },
         items: items.map(i => ({ artworkId: i.artwork._id, variant: i.variant })),
       });
-      setOrderId(order._id);
-      clearCart();
+      // Redireciona para o Checkout Pro do Mercado Pago. O carrinho só é
+      // limpo na volta, quando o pagamento é aprovado (página /checkout/retorno).
+      window.location.href = initPoint;
     } catch (e: any) {
       setError(e.message || 'Erro ao processar pedido. Tente novamente.');
-    } finally {
       setLoading(false);
     }
   }
@@ -278,46 +254,16 @@ export default function CheckoutPage() {
                 >
                   <span className={styles.paymentIcon} aria-hidden="true">{opt.icon}</span>
                   <span className={styles.paymentLabel}>{opt.label}</span>
-                  {opt.discount && (
-                    <span className={styles.paymentDiscount}>{opt.discount}</span>
-                  )}
                 </button>
               ))}
             </div>
 
             <div className={styles.paymentDetails}>
-              {payment === 'PIX' && (
-                <p className={styles.paymentNote}>
-                  💡 Após confirmar, você receberá a chave Pix e QR Code por e-mail.
-                  Pagamento confirmado em segundos.
-                </p>
-              )}
-              {payment === 'CREDIT_CARD' && (
-                <div className={styles.formGrid} style={{ marginTop: 0 }}>
-                  <div className={`form-group ${styles.spanFull}`}>
-                    <label className="form-label">Número do cartão</label>
-                    <input className="form-input" placeholder="0000 0000 0000 0000" inputMode="numeric" />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Validade</label>
-                    <input className="form-input" placeholder="MM/AA" />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">CVV</label>
-                    <input className="form-input" placeholder="123" inputMode="numeric" />
-                  </div>
-                  <div className={`form-group ${styles.spanFull}`}>
-                    <label className="form-label">Nome no cartão</label>
-                    <input className="form-input" placeholder="Exatamente como no cartão" autoComplete="cc-name" />
-                  </div>
-                </div>
-              )}
-              {payment === 'BOLETO' && (
-                <p className={styles.paymentNote}>
-                  📄 O boleto será gerado após confirmação. Válido por 3 dias úteis.
-                  O pedido é reservado até o pagamento ser identificado.
-                </p>
-              )}
+              <p className={styles.paymentNote}>
+                🔒 Ao confirmar, você será levado ao ambiente seguro do Mercado Pago
+                para concluir o pagamento (Pix, cartão ou boleto). A obra fica
+                reservada para você até a confirmação.
+              </p>
             </div>
           </div>
 
@@ -340,10 +286,10 @@ export default function CheckoutPage() {
             {loading ? (
               <span className={styles.submitBtnLoading}>
                 <span className={styles.spinner} aria-hidden="true" />
-                Processando...
+                Redirecionando ao pagamento...
               </span>
             ) : (
-              `Confirmar Pedido · ${formatPrice(total)}`
+              `Ir para o pagamento · ${formatPrice(total)}`
             )}
           </button>
 
