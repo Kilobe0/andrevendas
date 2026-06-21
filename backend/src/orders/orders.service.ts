@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, Logger } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import {
@@ -196,6 +196,19 @@ export class OrdersService {
 
   async findById(id: string): Promise<OrderDocument> {
     return this.orderModel.findById(id).exec() as Promise<OrderDocument>;
+  }
+
+  // Exclui um pedido. Se ainda estava PENDING, libera as obras reservadas
+  // de volta ao catálogo (um pedido PAID não mexe nas obras já vendidas).
+  async remove(id: string): Promise<void> {
+    const order = await this.orderModel.findById(id).exec();
+    if (!order) throw new NotFoundException('Pedido não encontrado');
+    if (order.status === OrderStatus.PENDING) {
+      await this.releaseItems(
+        order.items.map(i => ({ artworkId: String(i.artwork), variant: i.variant || undefined })),
+      );
+    }
+    await this.orderModel.findByIdAndDelete(id).exec();
   }
 
   async getStats(): Promise<{ total: number; sold: number; revenue: number; pendingOrders: number }> {

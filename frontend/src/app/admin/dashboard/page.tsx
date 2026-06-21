@@ -51,12 +51,15 @@ export default function AdminDashboardPage() {
       {/* Sidebar */}
       <aside className={styles.sidebar}>
         <div className={styles.sidebarBrand}>
-          <Link href="/" className={styles.brandLink}>André Valença</Link>
+          <Link href="/admin/dashboard" className={styles.brandLink}>André Valença</Link>
           <span>Admin</span>
         </div>
         <nav className={styles.sidebarNav}>
           <Link href="/admin/dashboard" className={`${styles.navItem} ${styles.active}`} id="nav-dashboard">
             ◈ Dashboard
+          </Link>
+          <Link href="/admin/pedidos" className={styles.navItem} id="nav-pedidos">
+            ✉ Pedidos
           </Link>
           <Link href="/admin/obras" className={styles.navItem} id="nav-obras">
             ▣ Obras

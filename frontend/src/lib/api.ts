@@ -126,6 +126,12 @@ export const getOrderStats = (token: string) =>
     { headers: { Authorization: `Bearer ${token}` } },
   );
 
+export const deleteOrder = (id: string, token: string) =>
+  apiFetch<void>(`/orders/${id}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
 // ─── Auth ────────────────────────────────────────────────
 export const login = (email: string, password: string) =>
   apiFetch<{ access_token: string; admin: { name: string; email: string } }>('/auth/login', {

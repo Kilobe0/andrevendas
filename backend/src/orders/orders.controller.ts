@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Query, HttpCode, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Body, Param, Query, HttpCode, UseGuards } from '@nestjs/common';
 import { OrdersService, CreateOrderDto } from './orders.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
@@ -43,5 +43,11 @@ export class OrdersController {
   @UseGuards(JwtAuthGuard)
   findOne(@Param('id') id: string) {
     return this.ordersService.findById(id);
+  }
+
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard)
+  remove(@Param('id') id: string) {
+    return this.ordersService.remove(id);
   }
 }

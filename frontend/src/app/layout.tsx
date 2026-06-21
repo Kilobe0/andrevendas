@@ -2,9 +2,7 @@ import type { Metadata } from 'next';
 import { Newsreader, Instrument_Sans, Spline_Sans_Mono } from 'next/font/google';
 import './globals.css';
 import { CartProvider } from '@/lib/cart';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
-import CartDrawer from '@/components/cart/CartDrawer';
+import SiteChrome from '@/components/layout/SiteChrome';
 
 const serif = Newsreader({
   subsets: ['latin'],
@@ -58,10 +56,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         <CartProvider>
-          <Header />
-          <main>{children}</main>
-          <Footer />
-          <CartDrawer />
+          <SiteChrome>{children}</SiteChrome>
         </CartProvider>
       </body>
     </html>

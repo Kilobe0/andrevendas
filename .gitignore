@@ -1,5 +1,6 @@
-# placeholders locais — as imagens reais ficam no banco
-obras/
+# placeholders locais na raiz — as imagens reais ficam no banco
+# (ancorado em /: não pode casar frontend/src/app/admin/obras)
+/obras/
 
 # ambiente
 .env
