@@ -91,7 +91,7 @@ export default function AdminObrasPage() {
                     <p className={styles.cardPrice}>{formatPrice(artwork.price)}</p>
                   </div>
                   <div className={styles.cardActions}>
-                    <Link href={`/admin/obras/${artwork._id}`} className="btn btn-outline" style={{ flex: 1 }}>
+                    <Link href={`/admin/obras/editar?id=${artwork._id}`} className="btn btn-outline" style={{ flex: 1 }}>
                       Editar
                     </Link>
                     <button
