@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import Image from 'next/image';
 import styles from './page.module.css';
 
 export const metadata: Metadata = {
@@ -23,6 +24,18 @@ export default function ArtistaPage() {
 
       <div className="container--narrow">
         <div className={styles.content}>
+          <figure className={`${styles.figure} ${styles.figurePortrait}`}>
+            <Image
+              src="/artista/retrato.jpeg"
+              alt="Retrato de André Valença"
+              width={418}
+              height={437}
+              sizes="(max-width: 768px) 100vw, 420px"
+              priority
+            />
+            <figcaption className={styles.figureCaption}>André Valença</figcaption>
+          </figure>
+
           <section className={styles.section}>
             <h2 className={styles.sectionTitle}>Trajetória</h2>
             <p>
@@ -66,6 +79,19 @@ export default function ArtistaPage() {
               diversas formas de arte. Com uma trajetória única e uma paixão pela arte, André
               continua a criar obras que refletem sua visão, maturidade e sensibilidade.
             </p>
+
+            <figure className={`${styles.figure} ${styles.figureWide}`}>
+              <Image
+                src="/artista/atelie.jpeg"
+                alt="André Valença trabalhando em uma de suas obras"
+                width={637}
+                height={556}
+                sizes="(max-width: 768px) 100vw, 720px"
+              />
+              <figcaption className={styles.figureCaption}>
+                O artista durante o processo de criação
+              </figcaption>
+            </figure>
           </section>
 
           <blockquote className={styles.quote}>
