@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { LayoutDashboard, Inbox, Frame, Plus } from 'lucide-react';
 import { getArtworks, getOrderStats, getOrders, Artwork, Order, formatPrice } from '@/lib/api';
 import styles from './page.module.css';
 
@@ -56,16 +57,16 @@ export default function AdminDashboardPage() {
         </div>
         <nav className={styles.sidebarNav}>
           <Link href="/admin/dashboard" className={`${styles.navItem} ${styles.active}`} id="nav-dashboard">
-            ◈ Dashboard
+            <LayoutDashboard size={16} strokeWidth={1.5} /> Dashboard
           </Link>
           <Link href="/admin/pedidos" className={styles.navItem} id="nav-pedidos">
-            ✉ Pedidos
+            <Inbox size={16} strokeWidth={1.5} /> Pedidos
           </Link>
           <Link href="/admin/obras" className={styles.navItem} id="nav-obras">
-            ▣ Obras
+            <Frame size={16} strokeWidth={1.5} /> Obras
           </Link>
           <Link href="/admin/obras/nova" className={styles.navItem} id="nav-nova-obra">
-            + Nova Obra
+            <Plus size={16} strokeWidth={1.5} /> Nova Obra
           </Link>
         </nav>
         <div className={styles.sidebarFooter}>

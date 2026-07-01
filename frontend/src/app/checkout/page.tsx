@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { AlertTriangle, Lock, Package, BadgeCheck } from 'lucide-react';
 import { useCart } from '@/lib/cart';
 import { createOrder, formatPrice, getImageUrl } from '@/lib/api';
 import Image from 'next/image';
@@ -233,7 +234,8 @@ export default function CheckoutPage() {
             </div>
             <div className={styles.paymentDetails}>
               <p className={styles.paymentNote}>
-                🔒 Ao confirmar, você será levado ao ambiente seguro do Mercado Pago
+                <Lock size={14} strokeWidth={1.5} aria-hidden="true" style={{ verticalAlign: '-2px', marginRight: '0.4em' }} />
+                Ao confirmar, você será levado ao ambiente seguro do Mercado Pago
                 para escolher e concluir o pagamento (Pix, cartão ou boleto). A obra
                 fica reservada para você até a confirmação.
               </p>
@@ -243,7 +245,7 @@ export default function CheckoutPage() {
           {/* Error message */}
           {error && (
             <div className={styles.errorMsg} role="alert">
-              <span aria-hidden="true">⚠</span>
+              <AlertTriangle size={18} strokeWidth={1.5} aria-hidden="true" />
               {error}
             </div>
           )}
@@ -268,9 +270,9 @@ export default function CheckoutPage() {
 
           {/* Trust signals below CTA */}
           <div className={styles.trustLine}>
-            <span className={styles.trustItem}><span aria-hidden="true">🔒</span> Compra segura</span>
-            <span className={styles.trustItem}><span aria-hidden="true">📦</span> Entrega com seguro</span>
-            <span className={styles.trustItem}><span aria-hidden="true">✦</span> Certificado incluso</span>
+            <span className={styles.trustItem}><Lock size={14} strokeWidth={1.5} aria-hidden="true" /> Compra segura</span>
+            <span className={styles.trustItem}><Package size={14} strokeWidth={1.5} aria-hidden="true" /> Entrega com seguro</span>
+            <span className={styles.trustItem}><BadgeCheck size={14} strokeWidth={1.5} aria-hidden="true" /> Certificado incluso</span>
           </div>
         </form>
 

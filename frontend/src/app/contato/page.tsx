@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { CheckCircle2 } from 'lucide-react';
 import styles from './page.module.css';
 
 export default function ContatoPage() {
@@ -57,7 +58,7 @@ export default function ContatoPage() {
           <div className={styles.formWrapper}>
             {sent ? (
               <div className={styles.successMsg}>
-                <span className={styles.successIcon}>✦</span>
+                <span className={styles.successIcon} aria-hidden="true"><CheckCircle2 size={30} strokeWidth={1.5} /></span>
                 <h3>Mensagem enviada!</h3>
                 <p>Obrigado pelo contato. Retornaremos em breve.</p>
               </div>

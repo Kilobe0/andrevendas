@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import { LayoutDashboard, Inbox, Frame, Plus } from 'lucide-react';
 import { getOrders, deleteOrder, Order, formatPrice, getImageUrl } from '@/lib/api';
 import styles from './page.module.css';
 
@@ -67,10 +68,10 @@ export default function AdminPedidosPage() {
           <span>Admin</span>
         </div>
         <nav className={styles.sidebarNav}>
-          <Link href="/admin/dashboard" className={styles.navItem}>◈ Dashboard</Link>
-          <Link href="/admin/pedidos" className={`${styles.navItem} ${styles.active}`}>✉ Pedidos</Link>
-          <Link href="/admin/obras" className={styles.navItem}>▣ Obras</Link>
-          <Link href="/admin/obras/nova" className={styles.navItem}>+ Nova Obra</Link>
+          <Link href="/admin/dashboard" className={styles.navItem}><LayoutDashboard size={16} strokeWidth={1.5} /> Dashboard</Link>
+          <Link href="/admin/pedidos" className={`${styles.navItem} ${styles.active}`}><Inbox size={16} strokeWidth={1.5} /> Pedidos</Link>
+          <Link href="/admin/obras" className={styles.navItem}><Frame size={16} strokeWidth={1.5} /> Obras</Link>
+          <Link href="/admin/obras/nova" className={styles.navItem}><Plus size={16} strokeWidth={1.5} /> Nova Obra</Link>
         </nav>
         <div className={styles.sidebarFooter}>
           <button onClick={() => { localStorage.removeItem('av_token'); router.push('/admin/login'); }} className={styles.logoutBtn}>

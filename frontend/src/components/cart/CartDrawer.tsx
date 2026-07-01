@@ -1,4 +1,5 @@
 'use client';
+import { Lock } from 'lucide-react';
 import { useCart } from '@/lib/cart';
 import { formatPrice, getImageUrl } from '@/lib/api';
 import Image from 'next/image';
@@ -98,7 +99,7 @@ export default function CartDrawer() {
                 </Link>
 
                 <p className={styles.secureNote}>
-                  <span aria-hidden="true">🔒</span>
+                  <Lock size={12} strokeWidth={1.5} aria-hidden="true" />
                   Compra segura · Pix, Cartão ou Boleto
                 </p>
 
