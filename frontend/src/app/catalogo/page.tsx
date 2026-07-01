@@ -1,9 +1,16 @@
 'use client';
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { X } from 'lucide-react';
 import { getArtworks, getCategories, Artwork, Category } from '@/lib/api';
 import ArtworkCard from '@/components/gallery/ArtworkCard';
 import styles from './page.module.css';
+
+const STATUS_LABELS: Record<string, string> = {
+  AVAILABLE: 'Disponíveis',
+  SOLD: 'Vendidas',
+  EXHIBITION: 'Somente exposição',
+};
 
 const MATERIALS = [
   'Bronze reconstituído',
@@ -53,7 +60,7 @@ function CatalogoContent() {
   const activeChips = [
     categoryFilter && { key: 'category', label: categories.find(c => c.slug === categoryFilter)?.name || categoryFilter, clear: () => setCategoryFilter('') },
     materialFilter && { key: 'material', label: materialFilter, clear: () => setMaterialFilter('') },
-    statusFilter && { key: 'status', label: statusFilter === 'AVAILABLE' ? 'Disponíveis' : 'Vendidas', clear: () => setStatusFilter('') },
+    statusFilter && { key: 'status', label: STATUS_LABELS[statusFilter] ?? statusFilter, clear: () => setStatusFilter('') },
   ].filter(Boolean) as { key: string; label: string; clear: () => void }[];
 
   return (
@@ -152,12 +159,26 @@ function CatalogoContent() {
                   Vendidas
                   {statusFilter === 'SOLD' && <span className={styles.filterBtnDot} aria-hidden="true" />}
                 </button>
+                <button
+                  className={`${styles.filterBtn} ${statusFilter === 'EXHIBITION' ? styles.active : ''}`}
+                  onClick={() => setStatusFilter('EXHIBITION')}
+                  aria-pressed={statusFilter === 'EXHIBITION'}
+                  id="filter-exhibition"
+                >
+                  Somente exposição
+                  {statusFilter === 'EXHIBITION' && <span className={styles.filterBtnDot} aria-hidden="true" />}
+                </button>
               </div>
             </div>
 
             {hasFilters && (
-              <button className={styles.clearBtn} onClick={clearFilters} id="clear-filters-btn">
-                ✕ Limpar filtros
+              <button
+                className={styles.clearBtn}
+                onClick={clearFilters}
+                id="clear-filters-btn"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4em' }}
+              >
+                <X size={13} strokeWidth={2} aria-hidden="true" /> Limpar filtros
               </button>
             )}
           </aside>
@@ -172,8 +193,13 @@ function CatalogoContent() {
               {activeChips.length > 0 && (
                 <div className={styles.activeFilters} aria-label="Filtros ativos">
                   {activeChips.map(chip => (
-                    <button key={chip.key} className={styles.filterChip} onClick={chip.clear}>
-                      {chip.label} ✕
+                    <button
+                      key={chip.key}
+                      className={styles.filterChip}
+                      onClick={chip.clear}
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4em' }}
+                    >
+                      {chip.label} <X size={12} strokeWidth={2} aria-hidden="true" />
                     </button>
                   ))}
                 </div>

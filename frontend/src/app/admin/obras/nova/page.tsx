@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import { LayoutDashboard, Inbox, Frame, Plus, ArrowLeft, X } from 'lucide-react';
 import { getCategories, createArtwork, uploadImage, Category, getImageUrl } from '@/lib/api';
 import styles from './page.module.css';
 
@@ -76,17 +77,17 @@ export default function NovaObraPage() {
           <span>Admin</span>
         </div>
         <nav className={styles.sidebarNav}>
-          <Link href="/admin/dashboard" className={styles.navItem}>◈ Dashboard</Link>
-          <Link href="/admin/pedidos" className={styles.navItem}>✉ Pedidos</Link>
-          <Link href="/admin/obras" className={styles.navItem}>▣ Obras</Link>
-          <Link href="/admin/obras/nova" className={`${styles.navItem} ${styles.active}`}>+ Nova Obra</Link>
+          <Link href="/admin/dashboard" className={styles.navItem}><LayoutDashboard size={16} strokeWidth={1.5} /> Dashboard</Link>
+          <Link href="/admin/pedidos" className={styles.navItem}><Inbox size={16} strokeWidth={1.5} /> Pedidos</Link>
+          <Link href="/admin/obras" className={styles.navItem}><Frame size={16} strokeWidth={1.5} /> Obras</Link>
+          <Link href="/admin/obras/nova" className={`${styles.navItem} ${styles.active}`}><Plus size={16} strokeWidth={1.5} /> Nova Obra</Link>
         </nav>
       </aside>
 
       <main className={styles.main}>
         <div className={styles.header}>
           <h1 className={styles.pageTitle}>Nova Obra</h1>
-          <Link href="/admin/obras" className="btn btn-outline">← Voltar</Link>
+          <Link href="/admin/obras" className="btn btn-outline"><ArrowLeft size={16} strokeWidth={1.5} /> Voltar</Link>
         </div>
 
         <form onSubmit={handleSubmit} className={styles.form}>
@@ -130,9 +131,16 @@ export default function NovaObraPage() {
                       <option value="AVAILABLE">Disponível</option>
                       <option value="RESERVED">Reservada</option>
                       <option value="SOLD">Vendida</option>
+                      <option value="EXHIBITION">Somente exposição</option>
                     </select>
                   </div>
                 </div>
+                {form.status === 'EXHIBITION' && (
+                  <p className={styles.uploadNote}>
+                    Peça exibida na galeria, sem venda. Deixe o preço em <strong>0</strong> para
+                    ocultá-lo, ou informe um valor para exibir <strong>“Sob consulta”</strong>.
+                  </p>
+                )}
                 <div className={styles.row}>
                   <div className="form-group">
                     <label className="form-label">Categoria *</label>
@@ -159,7 +167,7 @@ export default function NovaObraPage() {
                   {images.map((img, i) => (
                     <div key={i} className={styles.imageThumb}>
                       <Image src={getImageUrl(img)} alt="" fill style={{ objectFit: 'cover' }} />
-                      <button type="button" className={styles.removeImage} onClick={() => setImages(p => p.filter((_, j) => j !== i))}>×</button>
+                      <button type="button" className={styles.removeImage} onClick={() => setImages(p => p.filter((_, j) => j !== i))} aria-label="Remover imagem"><X size={14} strokeWidth={2} /></button>
                     </div>
                   ))}
                   <label className={styles.uploadBtn} id="upload-image-btn">
@@ -168,7 +176,7 @@ export default function NovaObraPage() {
                       <span>Enviando...</span>
                     ) : (
                       <>
-                        <span className={styles.uploadIcon}>+</span>
+                        <Plus className={styles.uploadIcon} size={28} strokeWidth={1.5} />
                         <span>Adicionar imagem</span>
                       </>
                     )}

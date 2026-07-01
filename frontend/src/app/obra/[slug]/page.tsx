@@ -64,14 +64,19 @@ export default async function ObraPage({ params }: Props) {
     name: artwork.title,
     description: artwork.description,
     artMedium: artwork.material,
-    offers: {
-      '@type': 'Offer',
-      price: artwork.price,
-      priceCurrency: 'BRL',
-      availability: artwork.status === 'AVAILABLE'
-        ? 'https://schema.org/InStock'
-        : 'https://schema.org/SoldOut',
-    },
+    // Peças "Somente exposição" não estão à venda: sem bloco de oferta.
+    ...(artwork.status === 'EXHIBITION'
+      ? {}
+      : {
+          offers: {
+            '@type': 'Offer',
+            price: artwork.price,
+            priceCurrency: 'BRL',
+            availability: artwork.status === 'AVAILABLE'
+              ? 'https://schema.org/InStock'
+              : 'https://schema.org/SoldOut',
+          },
+        }),
     artist: {
       '@type': 'Person',
       name: 'André Valença',

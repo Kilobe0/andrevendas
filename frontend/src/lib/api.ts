@@ -24,7 +24,7 @@ export interface Category {
 export interface ArtworkVariant {
   name: string;
   image: string;
-  status: 'AVAILABLE' | 'SOLD' | 'RESERVED';
+  status: 'AVAILABLE' | 'SOLD' | 'RESERVED' | 'EXHIBITION';
 }
 
 export interface Artwork {
@@ -37,7 +37,7 @@ export interface Artwork {
   weight?: string;
   year?: number;
   price: number;
-  status: 'AVAILABLE' | 'SOLD' | 'RESERVED';
+  status: 'AVAILABLE' | 'SOLD' | 'RESERVED' | 'EXHIBITION';
   featured: boolean;
   images: string[];
   variants?: ArtworkVariant[];
@@ -155,6 +155,30 @@ export const uploadImage = async (file: File, token: string): Promise<{ url: str
 // ─── Helpers ─────────────────────────────────────────────
 export const formatPrice = (price: number) =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(price);
+
+// Rótulo de preço conforme o status. Peças "Somente exposição" não têm preço de
+// venda: mostram "Sob consulta" quando há um valor de referência (> 0) ou nada
+// quando não há preço (ex.: obra que não existe mais). Demais status: preço normal.
+export const priceLabel = (artwork: Pick<Artwork, 'status' | 'price'>): string | null => {
+  if (artwork.status === 'EXHIBITION') {
+    return artwork.price > 0 ? 'Sob consulta' : null;
+  }
+  return formatPrice(artwork.price);
+};
+
+// Classe de badge + texto por status, usado no card, no detalhe e no admin.
+export const statusBadge = (status: Artwork['status']): { cls: string; label: string } => {
+  switch (status) {
+    case 'AVAILABLE':
+      return { cls: 'badge-available', label: 'Disponível' };
+    case 'EXHIBITION':
+      return { cls: 'badge-exhibition', label: 'Somente exposição' };
+    case 'RESERVED':
+      return { cls: 'badge-reserved', label: 'Reservada' };
+    default:
+      return { cls: 'badge-sold', label: 'Vendida' };
+  }
+};
 
 export const getImageUrl = (path: string) => {
   if (!path) return '/placeholder.jpg';

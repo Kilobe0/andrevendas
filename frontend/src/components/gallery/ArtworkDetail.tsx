@@ -2,7 +2,8 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Artwork, formatPrice, getImageUrl } from '@/lib/api';
+import { ShieldCheck, Circle } from 'lucide-react';
+import { Artwork, priceLabel, statusBadge, getImageUrl } from '@/lib/api';
 import { useCart } from '@/lib/cart';
 import ArtworkCard from './ArtworkCard';
 import styles from './ArtworkDetail.module.css';
@@ -21,6 +22,9 @@ export default function ArtworkDetail({ artwork, related }: Props) {
   const hasVariants = variants.length > 0;
 
   const isAvailable = artwork.status === 'AVAILABLE';
+  const isExhibition = artwork.status === 'EXHIBITION';
+  const badge = statusBadge(artwork.status);
+  const price = priceLabel(artwork);
   const needsVariant = hasVariants && !selectedVariant;
   const inCart = hasItem(artwork._id, selectedVariant ?? undefined);
 
@@ -71,7 +75,7 @@ export default function ArtworkDetail({ artwork, related }: Props) {
                 quality={95}
                 sizes="(max-width: 900px) 100vw, 58vw"
               />
-              {!isAvailable && (
+              {!isAvailable && !isExhibition && (
                 <div className={styles.soldOverlay} role="status" aria-label="Obra indisponível">
                   <span className={styles.soldOverlayText}>Obra Vendida</span>
                 </div>
@@ -117,18 +121,26 @@ export default function ArtworkDetail({ artwork, related }: Props) {
 
             {/* Status badge */}
             <div className={styles.statusRow}>
-              <span className={`badge ${isAvailable ? 'badge-available' : 'badge-sold'}`}>
-                {isAvailable ? '● Disponível' : '○ Indisponível'}
+              <span
+                className={`badge ${badge.cls}`}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4em' }}
+              >
+                {isAvailable
+                  ? <Circle size={8} fill="currentColor" strokeWidth={0} aria-hidden="true" />
+                  : <Circle size={8} strokeWidth={2} aria-hidden="true" />}
+                {badge.label}
               </span>
               {hasVariants && (
                 <span className={styles.seriesNote}>Série de {variants.length} pinturas</span>
               )}
             </div>
 
-            {/* Price — prominent anchor */}
-            <div className={styles.priceDisplay} aria-label={`Preço: ${formatPrice(artwork.price)}`}>
-              {formatPrice(artwork.price)}
-            </div>
+            {/* Price — prominent anchor. Peças em exposição sem preço não exibem valor. */}
+            {price && (
+              <div className={styles.priceDisplay} aria-label={`Preço: ${price}`}>
+                {price}
+              </div>
+            )}
 
             {/* Description */}
             {artwork.description && (
@@ -209,51 +221,61 @@ export default function ArtworkDetail({ artwork, related }: Props) {
             )}
 
             {/* ── CTAs — clear hierarchy ── */}
-            <div className={styles.actions}>
-              {/* PRIMARY: Add to cart / View cart */}
-              <button
-                className={`${styles.btnBuyPrimary} ${inCart ? styles.inCart : ''}`}
-                onClick={handleAddToCart}
-                disabled={!isAvailable || needsVariant}
-                id={`add-to-cart-${artwork.slug}`}
-                aria-label={
-                  !isAvailable ? 'Obra indisponível' :
-                  needsVariant ? 'Selecione uma pintura para continuar' :
-                  inCart ? 'Ver carrinho' : `Adicionar ${artwork.title} ao carrinho`
-                }
-              >
-                {!isAvailable
-                  ? 'Obra Indisponível'
-                  : needsVariant
-                    ? 'Selecione uma pintura'
-                    : inCart
-                      ? <>Ver carrinho <span className={styles.btnArrow} aria-hidden="true">→</span></>
-                      : <>Adicionar ao Carrinho</>
-                }
-              </button>
-
-              {/* SECONDARY: Buy now (direct checkout) */}
-              {isAvailable && !inCart && !needsVariant && (
-                <Link
-                  href={`/checkout?obra=${artwork._id}`}
-                  className={styles.btnBuyNow}
-                  onClick={() => addItem(artwork, selectedVariant ?? undefined)}
-                  id={`buy-now-${artwork.slug}`}
-                >
-                  Comprar agora
-                </Link>
-              )}
-            </div>
-
-            {/* Guarantee / trust block */}
-            <div className={styles.guarantee}>
-              <span className={styles.guaranteeIcon} aria-hidden="true">✦</span>
-              <p className={styles.guaranteeText}>
-                <strong>Lorem ipsum dolor sit amet</strong>
-                Consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore
-                et dolore magna aliqua.
+            {isExhibition ? (
+              /* Peça em exposição: sem compra, apenas uma nota explicativa. */
+              <p className={styles.exhibitionNote}>
+                Esta peça integra a mostra da obra do artista e não está disponível
+                para venda. Para saber mais, <Link href="/contato">entre em contato</Link>.
               </p>
-            </div>
+            ) : (
+              <div className={styles.actions}>
+                {/* PRIMARY: Add to cart / View cart */}
+                <button
+                  className={`${styles.btnBuyPrimary} ${inCart ? styles.inCart : ''}`}
+                  onClick={handleAddToCart}
+                  disabled={!isAvailable || needsVariant}
+                  id={`add-to-cart-${artwork.slug}`}
+                  aria-label={
+                    !isAvailable ? 'Obra indisponível' :
+                    needsVariant ? 'Selecione uma pintura para continuar' :
+                    inCart ? 'Ver carrinho' : `Adicionar ${artwork.title} ao carrinho`
+                  }
+                >
+                  {!isAvailable
+                    ? 'Obra Indisponível'
+                    : needsVariant
+                      ? 'Selecione uma pintura'
+                      : inCart
+                        ? <>Ver carrinho <span className={styles.btnArrow} aria-hidden="true">→</span></>
+                        : <>Adicionar ao Carrinho</>
+                  }
+                </button>
+
+                {/* SECONDARY: Buy now (direct checkout) */}
+                {isAvailable && !inCart && !needsVariant && (
+                  <Link
+                    href={`/checkout?obra=${artwork._id}`}
+                    className={styles.btnBuyNow}
+                    onClick={() => addItem(artwork, selectedVariant ?? undefined)}
+                    id={`buy-now-${artwork.slug}`}
+                  >
+                    Comprar agora
+                  </Link>
+                )}
+              </div>
+            )}
+
+            {/* Guarantee / trust block — só faz sentido para peças à venda */}
+            {!isExhibition && (
+              <div className={styles.guarantee}>
+                <ShieldCheck className={styles.guaranteeIcon} size={22} strokeWidth={1.5} aria-hidden="true" />
+                <p className={styles.guaranteeText}>
+                  <strong>Lorem ipsum dolor sit amet</strong>
+                  Consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore
+                  et dolore magna aliqua.
+                </p>
+              </div>
+            )}
 
           </div>
         </div>

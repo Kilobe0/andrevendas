@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { Artwork, formatPrice, getImageUrl } from '@/lib/api';
+import { Artwork, priceLabel, statusBadge, getImageUrl } from '@/lib/api';
 import styles from './ArtworkCard.module.css';
 
 interface Props {
@@ -11,6 +11,9 @@ interface Props {
 
 export default function ArtworkCard({ artwork, priority = false, showPrice = true }: Props) {
   const isAvailable = artwork.status === 'AVAILABLE';
+  const isExhibition = artwork.status === 'EXHIBITION';
+  const badge = statusBadge(artwork.status);
+  const price = priceLabel(artwork);
 
   return (
     <Link href={`/obra/${artwork.slug}`} className={styles.card} id={`artwork-${artwork.slug}`}>
@@ -27,7 +30,7 @@ export default function ArtworkCard({ artwork, priority = false, showPrice = tru
           <span className={styles.viewLabel}>Ver obra →</span>
         </div>
         {!isAvailable && (
-          <div className={styles.soldStamp}>Indisponível</div>
+          <div className={styles.soldStamp}>{isExhibition ? 'Somente exposição' : 'Indisponível'}</div>
         )}
       </div>
 
@@ -36,11 +39,11 @@ export default function ArtworkCard({ artwork, priority = false, showPrice = tru
         <h3 className={styles.title}>{artwork.title}</h3>
         <div className={styles.meta}>
           <span className={styles.material}>{artwork.material}</span>
-          <span className={`badge ${isAvailable ? 'badge-available' : 'badge-sold'}`}>
-            {isAvailable ? 'Disponível' : 'Vendida'}
+          <span className={`badge ${badge.cls}`}>
+            {badge.label}
           </span>
         </div>
-        {showPrice && <div className={styles.price}>{formatPrice(artwork.price)}</div>}
+        {showPrice && price && <div className={styles.price}>{price}</div>}
       </div>
     </Link>
   );

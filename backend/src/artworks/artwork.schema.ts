@@ -7,6 +7,9 @@ export enum ArtworkStatus {
   AVAILABLE = 'AVAILABLE',
   SOLD = 'SOLD',
   RESERVED = 'RESERVED',
+  // Peça exibida na galeria apenas como mostra da técnica/diversidade do artista,
+  // não disponível para venda (quebrada, sem preço, ou que não existe mais).
+  EXHIBITION = 'EXHIBITION',
 }
 
 // Variante de uma série (ex.: pinturas individuais sob o mesmo título).

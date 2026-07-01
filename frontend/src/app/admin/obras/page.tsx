@@ -3,7 +3,8 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { getArtworks, deleteArtwork, Artwork, formatPrice, getImageUrl } from '@/lib/api';
+import { LayoutDashboard, Inbox, Frame, Plus } from 'lucide-react';
+import { getArtworks, deleteArtwork, Artwork, formatPrice, getImageUrl, statusBadge } from '@/lib/api';
 import styles from './page.module.css';
 
 export default function AdminObrasPage() {
@@ -47,10 +48,10 @@ export default function AdminObrasPage() {
           <span>Admin</span>
         </div>
         <nav className={styles.sidebarNav}>
-          <Link href="/admin/dashboard" className={styles.navItem}>◈ Dashboard</Link>
-          <Link href="/admin/pedidos" className={styles.navItem}>✉ Pedidos</Link>
-          <Link href="/admin/obras" className={`${styles.navItem} ${styles.active}`}>▣ Obras</Link>
-          <Link href="/admin/obras/nova" className={styles.navItem}>+ Nova Obra</Link>
+          <Link href="/admin/dashboard" className={styles.navItem}><LayoutDashboard size={16} strokeWidth={1.5} /> Dashboard</Link>
+          <Link href="/admin/pedidos" className={styles.navItem}><Inbox size={16} strokeWidth={1.5} /> Pedidos</Link>
+          <Link href="/admin/obras" className={`${styles.navItem} ${styles.active}`}><Frame size={16} strokeWidth={1.5} /> Obras</Link>
+          <Link href="/admin/obras/nova" className={styles.navItem}><Plus size={16} strokeWidth={1.5} /> Nova Obra</Link>
         </nav>
         <div className={styles.sidebarFooter}>
           <button onClick={() => { localStorage.removeItem('av_token'); router.push('/admin/login'); }} className={styles.logoutBtn}>
@@ -79,9 +80,9 @@ export default function AdminObrasPage() {
                     alt={artwork.title}
                     fill style={{ objectFit: 'cover' }}
                   />
-                  <span className={`badge ${artwork.status === 'AVAILABLE' ? 'badge-available' : 'badge-sold'}`}
+                  <span className={`badge ${statusBadge(artwork.status).cls}`}
                     style={{ position: 'absolute', top: 8, left: 8 }}>
-                    {artwork.status === 'AVAILABLE' ? 'Disponível' : 'Vendida'}
+                    {statusBadge(artwork.status).label}
                   </span>
                 </div>
                 <div className={styles.cardBody}>
