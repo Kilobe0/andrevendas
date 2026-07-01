@@ -3,7 +3,8 @@ import styles from './page.module.css';
 
 export const metadata: Metadata = {
   title: 'O Artista',
-  description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt.',
+  description:
+    'André Valença Guimarães — artista plástico, escultor e pintor. Trajetória, processo criativo e exposições.',
 };
 
 export default function ArtistaPage() {
@@ -25,34 +26,51 @@ export default function ArtistaPage() {
           <section className={styles.section}>
             <h2 className={styles.sectionTitle}>Trajetória</h2>
             <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-              incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis
-              nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+              Nascido em Recife (PE) em 1979 e imerso desde a infância na efervescência
+              cultural e na arte popular de Olinda, André Valença Guimarães manifestou sua
+              vocação artística de forma precoce e espontânea. Aos 8 anos de idade, esculpiu
+              de maneira intuitiva uma imagem de Jesus Crucificado na madeira da cabeceira de
+              sua cama, revelando um talento nato que impressionou a família.
             </p>
             <p>
-              Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore
-              eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt
-              in culpa qui officia deserunt mollit anim id est laborum.
+              Aos 12 anos, mudou-se para Sete Lagoas (MG), cidade onde reside até hoje. Sua
+              rica ancestralidade artística transita pelo Nordeste, manifestando-se na música
+              da família Valença e nas artes visuais da família Guimarães em Minas Gerais. É
+              graduado em Psicologia pela PUC-MG — formação que ampliou sua percepção sobre a
+              complexidade das emoções e das relações humanas. Foi justamente durante o
+              período universitário que suas primeiras obras autorais ganharam vida.
             </p>
           </section>
 
           <section className={styles.section}>
             <h2 className={styles.sectionTitle}>Processo Criativo</h2>
             <p>
-              Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium
-              doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore
-              veritatis et quasi architecto beatae vitae dicta sunt explicabo.
+              O trabalho de André Valença é movido pelo fascínio de traduzir a complexidade
+              da mente e das emoções humanas em formas tangíveis. Suas obras — expressas em
+              esculturas, pinturas e desenhos — nascem de um olhar investigativo, que busca
+              capturar no rosto e na expressão o que vai além do olhar físico.
             </p>
             <p>
-              Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit,
-              sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt,
-              neque porro quisquam est qui dolorem ipsum quia dolor sit amet.
+              Sua produção une a liberdade da arte conceitual ao rigor técnico. Para André, o
+              processo criativo funciona como um rio: diante de qualquer obstáculo técnico ou
+              conceitual, ele se debruça sobre o desafio para encontrar novos fluxos de
+              expressão. Essa postura experimental o acompanha desde o início da carreira,
+              quando utilizava suportes inusitados como cartões telefônicos para realizar
+              impressões de tinta a óleo sobre o papel. Hoje, esse espírito inovador alia-se
+              ao refinamento técnico obtido através do estudo da pintura a óleo no Atelier
+              Josemmar.
+            </p>
+            <p>
+              André Valença Guimarães é um artista que está em constante evolução. Sua jornada
+              artística é marcada pela busca por um estilo próprio e pela experimentação com
+              diversas formas de arte. Com uma trajetória única e uma paixão pela arte, André
+              continua a criar obras que refletem sua visão, maturidade e sensibilidade.
             </p>
           </section>
 
           <blockquote className={styles.quote}>
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-            Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+            "O processo criativo funciona como um rio: diante de qualquer obstáculo, me
+            debruço sobre o desafio para encontrar novos fluxos de expressão."
             <cite>— André Valença</cite>
           </blockquote>
 
@@ -72,7 +90,7 @@ export default function ArtistaPage() {
           </section>
 
           <div className={styles.cta}>
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor?</p>
+            <p>Quer conhecer uma obra de perto ou conversar sobre um trabalho?</p>
             <a href="/contato" className="btn btn-primary">Entrar em contato</a>
           </div>
         </div>
@@ -82,9 +100,35 @@ export default function ArtistaPage() {
 }
 
 const TIMELINE = [
-  { year: '2023', title: 'Lorem Ipsum Dolor — Sit Amet', place: 'Consectetur Adipiscing, São Paulo' },
-  { year: '2022', title: 'Sed Do Eiusmod — Tempor Incididunt', place: 'Ut Labore, Rio de Janeiro' },
-  { year: '2021', title: 'Dolore Magna Aliqua', place: 'Ut Enim Ad Minim, Porto Alegre' },
-  { year: '2019', title: 'Quis Nostrud — Exercitation Ullamco', place: 'Laboris Nisi Ut Aliquip' },
-  { year: '2017', title: 'Duis Aute Irure Dolor', place: 'In Reprehenderit, São Paulo' },
+  {
+    year: '2026',
+    title: 'Exposição e comercialização de peças na Ilha Collab',
+    place: 'Ilha do Milito — Sete Lagoas (MG)',
+  },
+  {
+    year: '2025',
+    title: 'Exposição Coletiva na Fenex',
+    place: 'Feira de Negócios e Conexões de Sete Lagoas e Região',
+  },
+  {
+    year: '2015',
+    title: 'Exposição Individual "Esboços e Escorços"',
+    place: 'Galeria Myralda / Casa da Cultura — Sete Lagoas (MG)',
+  },
+  {
+    year: '2008',
+    title: 'Mostras no Centro Cultural Nhô Quim Drummond',
+    place:
+      'Casarão — Sete Lagoas (MG). Coletiva "Ponto de Intervenção" e 1ª Mostra Fet Lúmina 10 anos, com a instalação autoral "Mãos que se constroem à luz da experiência"',
+  },
+  {
+    year: '2007',
+    title: 'Mostra "Desenvolvimento 12"',
+    place: 'Galeria da Escola de Belas Artes da UFMG — Belo Horizonte (MG)',
+  },
+  {
+    year: '2005',
+    title: 'Exposição "Novos Talentos" no Centro Loyola e 1ª Mostra do Atelier Arte Minas',
+    place: 'Tribunal de Contas do Estado de MG — Belo Horizonte (MG)',
+  },
 ];
