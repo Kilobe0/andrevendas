@@ -224,7 +224,7 @@ export default function ArtworkDetail({ artwork, related }: Props) {
             {isExhibition ? (
               /* Peça em exposição: sem compra, apenas uma nota explicativa. */
               <p className={styles.exhibitionNote}>
-                Esta peça integra a mostra da obra do artista e não está disponível
+                Esta peça integra o acervo do artista e não está disponível
                 para venda. Para saber mais, <Link href="/contato">entre em contato</Link>.
               </p>
             ) : (

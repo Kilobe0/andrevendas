@@ -64,7 +64,7 @@ export default async function ObraPage({ params }: Props) {
     name: artwork.title,
     description: artwork.description,
     artMedium: artwork.material,
-    // Peças "Somente exposição" não estão à venda: sem bloco de oferta.
+    // Peças de acervo (EXHIBITION) não estão à venda: sem bloco de oferta.
     ...(artwork.status === 'EXHIBITION'
       ? {}
       : {

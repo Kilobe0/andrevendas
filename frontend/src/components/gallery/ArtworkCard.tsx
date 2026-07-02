@@ -30,7 +30,7 @@ export default function ArtworkCard({ artwork, priority = false, showPrice = tru
           <span className={styles.viewLabel}>Ver obra →</span>
         </div>
         {!isAvailable && (
-          <div className={styles.soldStamp}>{isExhibition ? 'Somente exposição' : 'Indisponível'}</div>
+          <div className={styles.soldStamp}>{isExhibition ? 'Acervo' : 'Indisponível'}</div>
         )}
       </div>
 

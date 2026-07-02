@@ -131,13 +131,13 @@ export default function NovaObraPage() {
                       <option value="AVAILABLE">Disponível</option>
                       <option value="RESERVED">Reservada</option>
                       <option value="SOLD">Vendida</option>
-                      <option value="EXHIBITION">Somente exposição</option>
+                      <option value="EXHIBITION">Acervo (não à venda)</option>
                     </select>
                   </div>
                 </div>
                 {form.status === 'EXHIBITION' && (
                   <p className={styles.uploadNote}>
-                    Peça exibida na galeria, sem venda. Deixe o preço em <strong>0</strong> para
+                    Peça de acervo, exibida na galeria sem venda. Deixe o preço em <strong>0</strong> para
                     ocultá-lo, ou informe um valor para exibir <strong>“Sob consulta”</strong>.
                   </p>
                 )}

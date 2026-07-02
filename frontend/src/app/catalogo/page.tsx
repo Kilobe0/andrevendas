@@ -9,7 +9,7 @@ import styles from './page.module.css';
 const STATUS_LABELS: Record<string, string> = {
   AVAILABLE: 'Disponíveis',
   SOLD: 'Vendidas',
-  EXHIBITION: 'Somente exposição',
+  EXHIBITION: 'Acervo',
 };
 
 const MATERIALS = [
@@ -62,6 +62,13 @@ function CatalogoContent() {
     materialFilter && { key: 'material', label: materialFilter, clear: () => setMaterialFilter('') },
     statusFilter && { key: 'status', label: STATUS_LABELS[statusFilter] ?? statusFilter, clear: () => setStatusFilter('') },
   ].filter(Boolean) as { key: string; label: string; clear: () => void }[];
+
+  // Obras à venda vêm primeiro; as de acervo (EXHIBITION) sempre por último.
+  // sort é estável, então a ordem do backend (mais recentes primeiro) se mantém
+  // dentro de cada grupo. Vale com ou sem filtros ativos.
+  const sortedArtworks = [...artworks].sort(
+    (a, b) => (a.status === 'EXHIBITION' ? 1 : 0) - (b.status === 'EXHIBITION' ? 1 : 0),
+  );
 
   return (
     <div className={styles.page}>
@@ -165,7 +172,7 @@ function CatalogoContent() {
                   aria-pressed={statusFilter === 'EXHIBITION'}
                   id="filter-exhibition"
                 >
-                  Somente exposição
+                  Acervo
                   {statusFilter === 'EXHIBITION' && <span className={styles.filterBtnDot} aria-hidden="true" />}
                 </button>
               </div>
@@ -229,7 +236,7 @@ function CatalogoContent() {
               </div>
             ) : (
               <div className={styles.grid}>
-                {artworks.map((artwork, i) => (
+                {sortedArtworks.map((artwork, i) => (
                   <div
                     key={artwork._id}
                     className={styles.gridItem}

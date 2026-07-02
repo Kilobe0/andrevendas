@@ -156,7 +156,7 @@ export const uploadImage = async (file: File, token: string): Promise<{ url: str
 export const formatPrice = (price: number) =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(price);
 
-// Rótulo de preço conforme o status. Peças "Somente exposição" não têm preço de
+// Rótulo de preço conforme o status. Peças de acervo (EXHIBITION) não têm preço de
 // venda: mostram "Sob consulta" quando há um valor de referência (> 0) ou nada
 // quando não há preço (ex.: obra que não existe mais). Demais status: preço normal.
 export const priceLabel = (artwork: Pick<Artwork, 'status' | 'price'>): string | null => {
@@ -172,7 +172,7 @@ export const statusBadge = (status: Artwork['status']): { cls: string; label: st
     case 'AVAILABLE':
       return { cls: 'badge-available', label: 'Disponível' };
     case 'EXHIBITION':
-      return { cls: 'badge-exhibition', label: 'Somente exposição' };
+      return { cls: 'badge-exhibition', label: 'Acervo' };
     case 'RESERVED':
       return { cls: 'badge-reserved', label: 'Reservada' };
     default:
