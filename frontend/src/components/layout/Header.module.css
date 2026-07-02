@@ -54,6 +54,13 @@
   white-space: nowrap;
 }
 
+.logoMark {
+  display: block;
+  height: 40px;
+  width: auto;
+  color: var(--text);
+}
+
 .logoSub {
   font-family: var(--font-mono);
   font-size: var(--text-2xs);
@@ -228,4 +235,5 @@
 @media (max-width: 480px) {
   .inner { padding: 0 var(--sp-5); }
   .logoMain { font-size: var(--text-lg); }
+  .logoMark { height: 34px; }
 }

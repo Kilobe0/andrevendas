@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useCart } from '@/lib/cart';
 import ThemeToggle from './ThemeToggle';
+import Logo from '../brand/Logo';
 import styles from './Header.module.css';
 
 const NAV_LINKS = [
@@ -51,8 +52,8 @@ export default function Header() {
     >
       <div className={styles.inner}>
         {/* Logo */}
-        <Link href="/" className={styles.logo}>
-          <span className={styles.logoMain}>André Valença</span>
+        <Link href="/" className={styles.logo} aria-label="André Valença — Galeria de Arte">
+          <Logo className={styles.logoMark} />
           <span className={styles.logoSub}>Galeria de Arte</span>
         </Link>
 
