@@ -10,8 +10,6 @@ interface Props {
 }
 
 export default function ArtworkCard({ artwork, priority = false, showPrice = true }: Props) {
-  const isAvailable = artwork.status === 'AVAILABLE';
-  const isExhibition = artwork.status === 'EXHIBITION';
   const badge = statusBadge(artwork.status);
   const price = priceLabel(artwork);
 
@@ -29,9 +27,6 @@ export default function ArtworkCard({ artwork, priority = false, showPrice = tru
         <div className={styles.overlay}>
           <span className={styles.viewLabel}>Ver obra →</span>
         </div>
-        {!isAvailable && (
-          <div className={styles.soldStamp}>{isExhibition ? 'Acervo' : 'Indisponível'}</div>
-        )}
       </div>
 
       <div className={styles.info}>
