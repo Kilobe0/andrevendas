@@ -38,7 +38,7 @@ export class SeedService implements OnModuleInit {
   private async seedCategories(): Promise<void> {
     const list = [
       { name: 'Esculturas', slug: 'esculturas', description: 'Obras tridimensionais em diversos materiais' },
-      { name: 'Pinturas em Tela', slug: 'pinturas-em-tela', description: 'Pinturas em técnica mista sobre tela' },
+      { name: 'Pinturas', slug: 'pinturas-em-tela', description: 'Pinturas em técnica mista sobre tela' },
       { name: 'Desenhos', slug: 'desenhos', description: 'Obras em papel, grafite e técnicas diversas' },
     ];
 

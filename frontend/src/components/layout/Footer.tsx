@@ -22,7 +22,7 @@ export default function Footer() {
             <span className={styles.groupTitle}>Galeria</span>
             <Link href="/catalogo">Catálogo</Link>
             <Link href="/catalogo?categoria=esculturas">Esculturas</Link>
-            <Link href="/catalogo?categoria=pinturas-em-tela">Pinturas em Tela</Link>
+            <Link href="/catalogo?categoria=pinturas-em-tela">Pinturas</Link>
             <Link href="/catalogo?categoria=desenhos">Desenhos</Link>
           </div>
           <div className={styles.linkGroup}>
