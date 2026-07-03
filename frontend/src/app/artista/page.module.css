@@ -54,6 +54,8 @@
   color: var(--text-secondary);
   line-height: 1.85;
   max-width: 680px;
+  text-align: justify;
+  hyphens: auto;
 }
 
 .section p::first-letter {
