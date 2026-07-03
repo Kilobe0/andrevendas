@@ -158,12 +158,13 @@ export const formatPrice = (price: number) =>
 
 // Rótulo de preço conforme o status. Peças de acervo (EXHIBITION) não têm preço de
 // venda: mostram "Sob consulta" quando há um valor de referência (> 0) ou nada
-// quando não há preço (ex.: obra que não existe mais). Demais status: preço normal.
+// quando não há preço (ex.: obra que não existe mais). Demais status: preço normal,
+// ou "Sob consulta" quando a obra ainda não tem preço definido (price = 0).
 export const priceLabel = (artwork: Pick<Artwork, 'status' | 'price'>): string | null => {
   if (artwork.status === 'EXHIBITION') {
     return artwork.price > 0 ? 'Sob consulta' : null;
   }
-  return formatPrice(artwork.price);
+  return artwork.price > 0 ? formatPrice(artwork.price) : 'Sob consulta';
 };
 
 // Classe de badge + texto por status, usado no card, no detalhe e no admin.

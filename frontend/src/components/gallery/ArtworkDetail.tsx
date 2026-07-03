@@ -227,6 +227,12 @@ export default function ArtworkDetail({ artwork, related }: Props) {
                 Esta peça integra o acervo do artista e não está disponível
                 para venda. Para saber mais, <Link href="/contato">entre em contato</Link>.
               </p>
+            ) : isAvailable && artwork.price <= 0 ? (
+              /* Obra à venda sem preço definido: venda apenas sob consulta. */
+              <p className={styles.exhibitionNote}>
+                O valor desta obra está disponível sob consulta.{' '}
+                <Link href="/contato">Entre em contato</Link> para saber mais.
+              </p>
             ) : (
               <div className={styles.actions}>
                 {/* PRIMARY: Add to cart / View cart */}
