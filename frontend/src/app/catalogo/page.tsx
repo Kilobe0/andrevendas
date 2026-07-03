@@ -63,11 +63,12 @@ function CatalogoContent() {
     statusFilter && { key: 'status', label: STATUS_LABELS[statusFilter] ?? statusFilter, clear: () => setStatusFilter('') },
   ].filter(Boolean) as { key: string; label: string; clear: () => void }[];
 
-  // Obras à venda vêm primeiro; as de acervo (EXHIBITION) sempre por último.
+  // Disponíveis no topo, vendidas depois e acervo (EXHIBITION) sempre por último.
   // sort é estável, então a ordem do backend (mais recentes primeiro) se mantém
   // dentro de cada grupo. Vale com ou sem filtros ativos.
+  const statusRank = (s: string) => (s === 'AVAILABLE' ? 0 : s === 'EXHIBITION' ? 2 : 1);
   const sortedArtworks = [...artworks].sort(
-    (a, b) => (a.status === 'EXHIBITION' ? 1 : 0) - (b.status === 'EXHIBITION' ? 1 : 0),
+    (a, b) => statusRank(a.status) - statusRank(b.status),
   );
 
   return (
