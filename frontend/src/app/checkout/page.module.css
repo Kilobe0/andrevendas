@@ -228,6 +228,110 @@
   line-height: 1.65;
 }
 
+/* ── Feedback do CEP (área de entrega) ────────────────────── */
+.cepChecking {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+.cepOk {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--text-sm);
+  color: var(--success);
+  animation: fadeDown 0.2s var(--ease) both;
+}
+
+.cepNotice {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  padding: var(--sp-4) var(--sp-5);
+  background: var(--info-bg);
+  border: 1px solid var(--info-border);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  animation: fadeDown 0.2s var(--ease) both;
+}
+
+.cepNotice svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--info);
+}
+
+.cepNotice strong {
+  color: var(--text);
+}
+
+.cepNotice p {
+  margin-top: var(--sp-1);
+}
+
+/* ── Dialog de reserva (CEP fora da região) ───────────────── */
+.dialogOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: grid;
+  place-items: center;
+  padding: var(--sp-5);
+  background: var(--scrim);
+  animation: fadeDown 0.2s var(--ease) both;
+}
+
+.dialog {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  max-width: 620px;
+  padding: var(--sp-7) var(--sp-7) var(--sp-6);
+  background: var(--surface-raised);
+  border: 1px solid var(--border-strong);
+}
+
+.dialogTitle {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 500;
+  line-height: 1.25;
+  color: var(--text);
+}
+
+.dialogText {
+  font-size: var(--text-sm);
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
+.dialogText strong {
+  color: var(--text);
+}
+
+.dialogActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--sp-3);
+  margin-top: var(--sp-2);
+  flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+  .dialog {
+    padding: var(--sp-6) var(--sp-5);
+  }
+
+  .dialogActions {
+    flex-direction: column-reverse;
+  }
+
+  .dialogActions button {
+    width: 100%;
+  }
+}
+
 /* ── Error / Feedback ─────────────────────────────────────── */
 .errorMsg {
   display: flex;

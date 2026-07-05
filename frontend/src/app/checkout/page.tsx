@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { AlertTriangle, Lock, Package, BadgeCheck } from 'lucide-react';
+import { AlertTriangle, Lock, Package, BadgeCheck, Info, MapPin } from 'lucide-react';
 import { useCart } from '@/lib/cart';
 import { createOrder, formatPrice, getImageUrl } from '@/lib/api';
 import Image from 'next/image';
@@ -19,14 +19,67 @@ const EMPTY: FormData = {
   neighborhood: '', city: '', state: '', zipCode: '',
 };
 
+// Enquanto as peças não forem pesadas não há como calcular frete, então a
+// entrega imediata vale só para Sete Lagoas e municípios vizinhos. Fora
+// disso a compra é aceita como reserva da obra.
+const REGIAO_SETE_LAGOAS = [
+  'sete lagoas', 'prudente de morais', 'capim branco', 'matozinhos',
+  'pedro leopoldo', 'caetanopolis', 'paraopeba', 'cachoeira da prata',
+  'fortuna de minas', 'inhauma', 'funilandia', 'jequitiba', 'baldim',
+  'aracai', 'cordisburgo', 'santana de pirapama',
+];
+
+const normalizeCity = (s: string) =>
+  s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase();
+
+const isRegiao = (city: string) => REGIAO_SETE_LAGOAS.includes(normalizeCity(city));
+
+type CepCheck = 'idle' | 'loading' | 'in-region' | 'out-of-region' | 'not-found';
+
 export default function CheckoutPage() {
   const { items, total } = useCart();
 
   const [form, setForm] = useState<FormData>(EMPTY);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [cepCheck, setCepCheck] = useState<CepCheck>('idle');
+  const [showReservaDialog, setShowReservaDialog] = useState(false);
 
   const update = (k: keyof FormData, v: string) => setForm(f => ({ ...f, [k]: v }));
+
+  // Máscara leve + consulta ao ViaCEP quando o CEP fica completo: preenche o
+  // endereço e verifica se a cidade está na área de entrega (Sete Lagoas e região)
+  async function handleCep(raw: string) {
+    const digits = raw.replace(/\D/g, '').slice(0, 8);
+    const masked = digits.length > 5 ? `${digits.slice(0, 5)}-${digits.slice(5)}` : digits;
+    update('zipCode', masked);
+
+    if (digits.length < 8) {
+      setCepCheck('idle');
+      return;
+    }
+
+    setCepCheck('loading');
+    try {
+      const res = await fetch(`https://viacep.com.br/ws/${digits}/json/`);
+      const data = await res.json();
+      if (data.erro) {
+        setCepCheck('not-found');
+        return;
+      }
+      setForm(f => ({
+        ...f,
+        street: data.logradouro || f.street,
+        neighborhood: data.bairro || f.neighborhood,
+        city: data.localidade || f.city,
+        state: data.uf || f.state,
+      }));
+      setCepCheck(isRegiao(data.localidade || '') ? 'in-region' : 'out-of-region');
+    } catch {
+      // ViaCEP fora do ar não pode travar a compra — segue sem verificação
+      setCepCheck('idle');
+    }
+  }
 
   const isValid = form.name && form.email && form.cpf;
 
@@ -49,9 +102,19 @@ export default function CheckoutPage() {
     );
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!isValid) return;
+    // Dupla verificação: fora da área de entrega, o cliente precisa
+    // confirmar que entendeu que a compra vale como reserva
+    if (cepCheck === 'out-of-region') {
+      setShowReservaDialog(true);
+      return;
+    }
+    submitOrder();
+  }
+
+  async function submitOrder() {
     setLoading(true);
     setError('');
     try {
@@ -171,11 +234,44 @@ export default function CheckoutPage() {
                   className="form-input"
                   id="zipCode"
                   value={form.zipCode}
-                  onChange={e => update('zipCode', e.target.value)}
+                  onChange={e => handleCep(e.target.value)}
                   placeholder="00000-000"
                   inputMode="numeric"
                   autoComplete="postal-code"
+                  aria-describedby="cep-feedback"
                 />
+              </div>
+              <div className={styles.spanFull} id="cep-feedback" aria-live="polite">
+                {cepCheck === 'loading' && (
+                  <p className={styles.cepChecking}>Verificando CEP...</p>
+                )}
+                {cepCheck === 'not-found' && (
+                  <p className={styles.cepChecking}>
+                    CEP não encontrado — confira o número ou preencha o endereço manualmente.
+                  </p>
+                )}
+                {cepCheck === 'in-region' && (
+                  <p className={styles.cepOk}>
+                    <MapPin size={15} strokeWidth={1.5} aria-hidden="true" />
+                    Seu endereço está na nossa área de entrega — Sete Lagoas e região.
+                  </p>
+                )}
+                {cepCheck === 'out-of-region' && (
+                  <div className={styles.cepNotice} role="status">
+                    <Info size={18} strokeWidth={1.5} aria-hidden="true" />
+                    <div>
+                      <strong>Seu endereço fica fora de Sete Lagoas e região.</strong>
+                      <p>
+                        Você ainda pode concluir a compra: a obra ficará{' '}
+                        <strong>reservada em seu nome</strong>, mas a entrega não será
+                        feita neste momento. Ainda estamos pesando todas as peças para
+                        conseguir calcular os fretes — por isso, por enquanto, só
+                        entregamos em Sete Lagoas (MG) e região. Assim que for possível,
+                        entraremos em contato para combinar a entrega da sua obra.
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
               <div className={`form-group ${styles.spanFull}`}>
                 <label className="form-label" htmlFor="street">Rua / Avenida</label>
@@ -321,6 +417,56 @@ export default function CheckoutPage() {
           </div>
         </aside>
       </div>
+
+      {/* Dupla verificação: compra fora da área de entrega vale como reserva */}
+      {showReservaDialog && (
+        <div
+          className={styles.dialogOverlay}
+          onClick={() => setShowReservaDialog(false)}
+          role="presentation"
+        >
+          <div
+            className={styles.dialog}
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="reserva-dialog-title"
+            aria-describedby="reserva-dialog-text"
+            onClick={e => e.stopPropagation()}
+          >
+            <span className="label">Atenção</span>
+            <h2 id="reserva-dialog-title" className={styles.dialogTitle}>
+              Seu endereço fica fora de Sete Lagoas e região
+            </h2>
+            <p id="reserva-dialog-text" className={styles.dialogText}>
+              Você pode concluir a compra normalmente e a obra ficará{' '}
+              <strong>reservada em seu nome</strong>, mas a entrega{' '}
+              <strong>não será feita neste momento</strong>. Ainda estamos pesando
+              todas as peças para conseguir calcular os fretes — por isso, por
+              enquanto, só entregamos em Sete Lagoas (MG) e região. Assim que for
+              possível, entraremos em contato para combinar a entrega da sua obra.
+            </p>
+            <div className={styles.dialogActions}>
+              <button
+                type="button"
+                className="btn btn-outline"
+                onClick={() => setShowReservaDialog(false)}
+              >
+                Voltar
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => {
+                  setShowReservaDialog(false);
+                  submitOrder();
+                }}
+              >
+                Estou ciente, continuar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

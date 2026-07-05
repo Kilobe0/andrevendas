@@ -3,6 +3,7 @@ import { usePathname } from 'next/navigation';
 import Header from './Header';
 import Footer from './Footer';
 import CartDrawer from '../cart/CartDrawer';
+import ConstructionNotice from './ConstructionNotice';
 
 // As telas de admin têm layout próprio (sidebar) e são um mundo à parte do
 // site público — não devem mostrar o header, o footer nem o carrinho do site.
@@ -18,6 +19,7 @@ export default function SiteChrome({ children }: { children: React.ReactNode }) 
       <main>{children}</main>
       <Footer />
       <CartDrawer />
+      <ConstructionNotice />
     </>
   );
 }
