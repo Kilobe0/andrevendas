@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Artwork, ArtworkDocument, ArtworkStatus } from './artwork.schema';
@@ -65,21 +65,36 @@ export class ArtworksService {
     if (!result) throw new NotFoundException('Obra não encontrada');
   }
 
+  // Confirma a venda de uma unidade (webhook de pagamento aprovado). A unidade
+  // já saiu do estoque na reserva; a obra só vira SOLD quando o estoque zera —
+  // obras com várias unidades idênticas continuam AVAILABLE enquanto sobrar alguma.
   async markAsSold(id: string): Promise<ArtworkDocument> {
-    const artwork = await this.artworkModel
-      .findByIdAndUpdate(id, { status: ArtworkStatus.SOLD }, { new: true })
-      .exec();
+    const artwork = await this.artworkModel.findById(id).exec();
     if (!artwork) throw new NotFoundException('Obra não encontrada');
+    if (artwork.quantity <= 0) {
+      artwork.status = ArtworkStatus.SOLD;
+      await artwork.save();
+    }
     return artwork;
   }
 
-  // Reserva enquanto o cliente paga no Mercado Pago. A obra sai do catálogo
-  // mas não é dada como vendida até o webhook confirmar o pagamento.
+  // Reserva enquanto o cliente paga no Mercado Pago: consome uma unidade do
+  // estoque de forma atômica (a condição quantity > 0 evita corrida entre dois
+  // pedidos na última unidade). A obra só sai do catálogo quando a última
+  // unidade é reservada; até lá permanece AVAILABLE para outros compradores.
   async markAsReserved(id: string): Promise<ArtworkDocument> {
     const artwork = await this.artworkModel
-      .findByIdAndUpdate(id, { status: ArtworkStatus.RESERVED }, { new: true })
+      .findOneAndUpdate(
+        { _id: new Types.ObjectId(id), quantity: { $gt: 0 } },
+        { $inc: { quantity: -1 } },
+        { new: true },
+      )
       .exec();
-    if (!artwork) throw new NotFoundException('Obra não encontrada');
+    if (!artwork) throw new BadRequestException('Não há unidades disponíveis desta obra');
+    if (artwork.quantity <= 0) {
+      artwork.status = ArtworkStatus.RESERVED;
+      await artwork.save();
+    }
     return artwork;
   }
 
@@ -87,15 +102,18 @@ export class ArtworksService {
     return this.setVariantStatus(id, variantName, ArtworkStatus.RESERVED);
   }
 
-  // Devolve a obra/variante ao catálogo quando o pagamento falha ou é cancelado.
-  // Só libera o que está RESERVED — nunca "desvende" algo já SOLD.
+  // Devolve uma unidade ao catálogo quando o pagamento falha ou é cancelado.
+  // Recompõe o estoque e reabre a obra: cada release corresponde a uma reserva
+  // anterior, então a unidade devolvida sempre pode voltar à venda — inclusive
+  // se a obra ficou SOLD porque as demais unidades venderam nesse meio-tempo.
   async release(id: string): Promise<ArtworkDocument> {
     const artwork = await this.artworkModel.findById(id).exec();
     if (!artwork) throw new NotFoundException('Obra não encontrada');
-    if (artwork.status === ArtworkStatus.RESERVED) {
+    artwork.quantity += 1;
+    if (artwork.status === ArtworkStatus.RESERVED || artwork.status === ArtworkStatus.SOLD) {
       artwork.status = ArtworkStatus.AVAILABLE;
-      await artwork.save();
     }
+    await artwork.save();
     return artwork;
   }
 

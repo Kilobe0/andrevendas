@@ -17,7 +17,7 @@ export default function NovaObraPage() {
 
   const [form, setForm] = useState({
     title: '', slug: '', description: '', material: '', dimensions: '',
-    price: '', status: 'AVAILABLE', featured: false, category: '',
+    price: '', quantity: '1', status: 'AVAILABLE', featured: false, category: '',
   });
 
   useEffect(() => {
@@ -59,6 +59,7 @@ export default function NovaObraPage() {
       await createArtwork({
         ...form,
         price: Number(form.price),
+        quantity: Math.max(1, Number(form.quantity) || 1),
         images,
       } as any, token);
       router.push('/admin/obras');
@@ -135,6 +136,17 @@ export default function NovaObraPage() {
                     </select>
                   </div>
                 </div>
+                <div className="form-group">
+                  <label className="form-label">Unidades disponíveis</label>
+                  <input className="form-input" type="number" min="1" step="1" value={form.quantity}
+                    onChange={e => updateForm('quantity', e.target.value)} id="obra-quantity" />
+                </div>
+                {Number(form.quantity) > 1 && (
+                  <p className={styles.uploadNote}>
+                    Obra em série (cópias idênticas). O preço vale <strong>por unidade</strong>; a cada venda
+                    o estoque diminui e a obra só fica “Vendida” quando zerar.
+                  </p>
+                )}
                 {form.status === 'EXHIBITION' && (
                   <p className={styles.uploadNote}>
                     Peça de acervo, exibida na galeria sem venda. Deixe o preço em <strong>0</strong> para

@@ -23,7 +23,7 @@ function EditarObraInner() {
 
   const [form, setForm] = useState({
     title: '', slug: '', description: '', material: '', dimensions: '',
-    price: '', status: 'AVAILABLE', featured: false, category: '',
+    price: '', quantity: '1', status: 'AVAILABLE', featured: false, category: '',
   });
 
   useEffect(() => {
@@ -44,6 +44,7 @@ function EditarObraInner() {
           material: a.material,
           dimensions: a.dimensions || '',
           price: String(a.price),
+          quantity: String(a.quantity ?? 1),
           status: a.status,
           featured: a.featured,
           category: a.category?._id || '',
@@ -77,7 +78,12 @@ function EditarObraInner() {
     if (images.length === 0) { alert('Adicione ao menos uma imagem'); return; }
     setSaving(true);
     try {
-      await updateArtwork(id, { ...form, price: Number(form.price), images } as any, token);
+      await updateArtwork(id, {
+        ...form,
+        price: Number(form.price),
+        quantity: Math.max(0, Number(form.quantity) || 0),
+        images,
+      } as any, token);
       router.push('/admin/obras');
     } catch (err: any) {
       alert(err.message);
@@ -163,6 +169,17 @@ function EditarObraInner() {
                     <p className={styles.uploadNote}>
                       Peça de acervo, exibida na galeria sem venda. Deixe o preço em <strong>0</strong> para
                       ocultá-lo, ou informe um valor para exibir <strong>“Sob consulta”</strong>.
+                    </p>
+                  )}
+                  <div className="form-group">
+                    <label className="form-label">Unidades disponíveis</label>
+                    <input className="form-input" type="number" min="0" step="1" value={form.quantity}
+                      onChange={e => updateField('quantity', e.target.value)} id="obra-quantity" />
+                  </div>
+                  {Number(form.quantity) > 1 && (
+                    <p className={styles.uploadNote}>
+                      Obra em série (cópias idênticas). O preço vale <strong>por unidade</strong>; a cada venda
+                      o estoque diminui e a obra só fica “Vendida” quando zerar.
                     </p>
                   )}
                   <div className={styles.row}>

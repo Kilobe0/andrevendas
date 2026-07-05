@@ -54,6 +54,12 @@ export class Artwork {
   @Prop({ required: true })
   price: number;
 
+  // Unidades ainda disponíveis para venda (obras com cópias idênticas, ex.:
+  // esculturas em série). 1 = obra única. Zera conforme os pedidos reservam;
+  // a obra só vira SOLD quando não resta unidade.
+  @Prop({ default: 1, min: 0 })
+  quantity: number;
+
   @Prop({ type: String, enum: ArtworkStatus, default: ArtworkStatus.AVAILABLE })
   status: ArtworkStatus;
 

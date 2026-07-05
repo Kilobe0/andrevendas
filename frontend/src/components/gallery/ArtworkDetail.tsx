@@ -133,6 +133,11 @@ export default function ArtworkDetail({ artwork, related }: Props) {
               {hasVariants && (
                 <span className={styles.seriesNote}>Série de {variants.length} pinturas</span>
               )}
+              {isAvailable && (artwork.quantity ?? 1) > 1 && (
+                <span className={styles.seriesNote}>
+                  Disponíveis: {artwork.quantity} unidades
+                </span>
+              )}
             </div>
 
             {/* Price — prominent anchor. Peças em exposição sem preço não exibem valor. */}

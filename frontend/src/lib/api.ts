@@ -37,6 +37,8 @@ export interface Artwork {
   weight?: string;
   year?: number;
   price: number;
+  // Unidades ainda disponíveis (obras com cópias idênticas). Ausente = 1.
+  quantity?: number;
   status: 'AVAILABLE' | 'SOLD' | 'RESERVED' | 'EXHIBITION';
   featured: boolean;
   images: string[];
