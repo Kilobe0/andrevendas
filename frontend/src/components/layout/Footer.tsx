@@ -9,14 +9,6 @@ export default function Footer() {
       </div>
 
       <div className={styles.inner}>
-        <div className={styles.brand}>
-          <span className={styles.brandName}>Galeria de Arte</span>
-          <p className={styles.brandDesc}>
-            Lorem ipsum dolor sit amet.<br />
-            Consectetur adipiscing elit.
-          </p>
-        </div>
-
         <div className={styles.links}>
           <div className={styles.linkGroup}>
             <span className={styles.groupTitle}>Galeria</span>
@@ -36,7 +28,10 @@ export default function Footer() {
       <div className={styles.bottom}>
         <p>© {new Date().getFullYear()} André Valença. Todos os direitos reservados.</p>
         <p className={styles.bottomRight}>
-          Lorem ipsum · Dolor sit amet
+          Feito com ❤️ por{' '}
+          <a href="https://github.com/Kilobe0" target="_blank" rel="noopener noreferrer">
+            Matheus Achim
+          </a>
         </p>
       </div>
     </footer>

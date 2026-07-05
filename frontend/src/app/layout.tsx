@@ -26,7 +26,7 @@ const mono = Spline_Sans_Mono({
 
 export const metadata: Metadata = {
   title: { default: 'André Valença — Galeria de Arte', template: '%s | André Valença' },
-  description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.',
+  description: 'Galeria de arte de André Valença — esculturas, pinturas e desenhos originais. Obras únicas à venda e acervo do artista.',
   keywords: ['galeria de arte', 'obras de arte', 'esculturas', 'pinturas', 'arte contemporânea', 'André Valença'],
   authors: [{ name: 'André Valença' }],
   openGraph: {
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     url: 'https://andrevalenca.com.br',
     siteName: 'André Valença — Galeria de Arte',
     title: 'André Valença — Galeria de Arte Contemporânea',
-    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+    description: 'Esculturas, pinturas e desenhos originais de André Valença.',
   },
   twitter: { card: 'summary_large_image' },
   robots: { index: true, follow: true },

@@ -10,6 +10,7 @@ import styles from './Header.module.css';
 const NAV_LINKS = [
   { href: '/catalogo', label: 'Catálogo' },
   { href: '/artista', label: 'Artista' },
+  // /eventos existe mas fica fora do ar por enquanto — reativar quando houver fotos
   { href: '/contato', label: 'Contato' },
 ];
 

@@ -1,0 +1,167 @@
+.page { padding-top: 80px; }
+
+/* ── Hero — mesmo frontispício editorial da página do artista ── */
+.hero {
+  padding: var(--space-24) 0 var(--space-16);
+  border-bottom: 1px solid var(--text);
+}
+
+.heroText {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 0 var(--sp-10);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+}
+
+.heroTitle {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 8vw, 6rem);
+  font-weight: 300;
+  font-style: italic;
+  letter-spacing: -0.025em;
+  line-height: 0.95;
+  color: var(--text);
+}
+
+.heroSubtitle {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ── Conteúdo ─────────────────────────────────────────────── */
+.content {
+  padding: var(--space-16) 0 var(--space-24);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-20);
+}
+
+.event {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+}
+
+.eventHeader {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  gap: var(--sp-8);
+  align-items: baseline;
+  padding-bottom: var(--sp-5);
+  border-bottom: 1px solid var(--border);
+}
+
+.eventYear {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+
+.eventHeading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.eventTitle {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: var(--text-xl);
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+  color: var(--text);
+}
+
+.eventPlace {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.eventDesc {
+  font-size: var(--text-md);
+  color: var(--text-secondary);
+  line-height: 1.85;
+  max-width: 680px;
+}
+
+/* ── Grade de fotos — registro de exposição ───────────────── */
+.photoGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--sp-5);
+}
+
+.photo {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--border);
+}
+
+.photoCaption {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* Espaço reservado enquanto o evento não tem fotos cadastradas */
+.photoPlaceholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-10);
+  border: 1px dashed var(--border);
+}
+
+.photoPlaceholder span {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ── CTA ──────────────────────────────────────────────────── */
+.cta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sp-6);
+  padding: var(--sp-8) 0 0;
+}
+
+.cta p {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--text-lg);
+  color: var(--text-secondary);
+  max-width: 480px;
+  line-height: 1.5;
+}
+
+/* ── Responsivo ───────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .heroText { padding: 0 var(--sp-5); }
+  .eventHeader { grid-template-columns: 72px 1fr; gap: var(--sp-4); }
+  .photoGrid { grid-template-columns: 1fr; }
+}

@@ -5,8 +5,10 @@ import styles from './page.module.css';
 export const metadata: Metadata = {
   title: 'O Artista',
   description:
-    'André Valença Guimarães — artista plástico, escultor e pintor. Trajetória, processo criativo e exposições.',
+    'André Valença Guimarães — Artes Visuais. Trajetória, processo criativo e exposições.',
 };
+
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
 
 export default function ArtistaPage() {
   return (
@@ -16,7 +18,7 @@ export default function ArtistaPage() {
           <span className="label">O artista</span>
           <h1 className={styles.heroTitle}>André Valença</h1>
           <p className={styles.heroSubtitle}>
-            Artista plástico, escultor e pintor
+            Artes Visuais
           </p>
         </div>
         <div className={styles.heroDivider} />
@@ -26,7 +28,7 @@ export default function ArtistaPage() {
         <div className={styles.content}>
           <figure className={`${styles.figure} ${styles.figurePortrait}`}>
             <Image
-              src="/artista/retrato.jpeg"
+              src={`${basePath}/artista/retrato.jpeg`}
               alt="Retrato de André Valença"
               width={418}
               height={437}
@@ -82,7 +84,7 @@ export default function ArtistaPage() {
 
             <figure className={`${styles.figure} ${styles.figureWide}`}>
               <Image
-                src="/artista/atelie.jpeg"
+                src={`${basePath}/artista/atelie.jpeg`}
                 alt="André Valença trabalhando em uma de suas obras"
                 width={637}
                 height={556}

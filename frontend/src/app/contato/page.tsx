@@ -4,7 +4,7 @@ import { CheckCircle2 } from 'lucide-react';
 import styles from './page.module.css';
 
 export default function ContatoPage() {
-  const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
+  const [form, setForm] = useState({ name: '', email: '', message: '' });
   const [sent, setSent] = useState(false);
 
   function handleSubmit(e: React.FormEvent) {
@@ -28,28 +28,28 @@ export default function ContatoPage() {
             <div className={styles.infoBlock}>
               <h2 className={styles.infoTitle}>Atendimento</h2>
               <p className={styles.infoText}>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-                tempor incididunt ut labore et dolore magna aliqua.
+                Interessado em uma obra, encomenda ou exposição? Envie uma mensagem
+                pelo formulário ou fale diretamente pelos canais abaixo.
               </p>
             </div>
 
             <div className={styles.contacts}>
               <div className={styles.contactItem}>
                 <span className={styles.contactLabel}>E-mail</span>
-                <a href="mailto:contato@andrevalenca.com.br" className={styles.contactValue}>
-                  contato@andrevalenca.com.br
+                <a href="mailto:andrevalencaguimaraes@gmail.com" className={styles.contactValue}>
+                  andrevalencaguimaraes@gmail.com
                 </a>
               </div>
               <div className={styles.contactItem}>
                 <span className={styles.contactLabel}>WhatsApp</span>
-                <a href="https://wa.me/5511999999999" className={styles.contactValue}>
-                  +55 (11) 99999-9999
+                <a href="https://wa.me/5531982409191" className={styles.contactValue}>
+                  +55 (31) 98240-9191
                 </a>
               </div>
               <div className={styles.contactItem}>
                 <span className={styles.contactLabel}>Instagram</span>
-                <a href="https://instagram.com/andrevalenca" className={styles.contactValue}>
-                  @andrevalenca
+                <a href="https://instagram.com/andre.valenca.guimaraes" className={styles.contactValue}>
+                  @andre.valenca.guimaraes
                 </a>
               </div>
             </div>
@@ -84,22 +84,6 @@ export default function ContatoPage() {
                     required
                     id="contact-email"
                   />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Assunto</label>
-                  <select
-                    className="form-select"
-                    value={form.subject}
-                    onChange={e => setForm(f => ({ ...f, subject: e.target.value }))}
-                    id="contact-subject"
-                  >
-                    <option value="">Selecione...</option>
-                    <option>Interesse em obra</option>
-                    <option>Encomenda especial</option>
-                    <option>Exposição / Parceria</option>
-                    <option>Imprensa</option>
-                    <option>Outro</option>
-                  </select>
                 </div>
                 <div className="form-group">
                   <label className="form-label">Mensagem</label>

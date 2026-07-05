@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ShieldCheck, Circle } from 'lucide-react';
+import { Circle } from 'lucide-react';
 import { Artwork, priceLabel, statusBadge, getImageUrl } from '@/lib/api';
 import { useCart } from '@/lib/cart';
 import ArtworkCard from './ArtworkCard';
@@ -172,12 +172,6 @@ export default function ArtworkDetail({ artwork, related }: Props) {
                 </div>
               )}
               <div className={styles.spec}>
-                <dt className={styles.specLabel}>Edição</dt>
-                <dd className={styles.specValue}>
-                  {hasVariants ? `Série de ${variants.length} peças únicas` : 'Peça única e original'}
-                </dd>
-              </div>
-              <div className={styles.spec}>
                 <dt className={styles.specLabel}>Artista</dt>
                 <dd className={styles.specValue}>André Valença</dd>
               </div>
@@ -222,11 +216,8 @@ export default function ArtworkDetail({ artwork, related }: Props) {
 
             {/* ── CTAs — clear hierarchy ── */}
             {isExhibition ? (
-              /* Peça em exposição: sem compra, apenas uma nota explicativa. */
-              <p className={styles.exhibitionNote}>
-                Esta peça integra o acervo do artista e não está disponível
-                para venda. Para saber mais, <Link href="/contato">entre em contato</Link>.
-              </p>
+              /* Peça em exposição: sem compra e sem nota — apenas as informações da obra. */
+              null
             ) : isAvailable && artwork.price <= 0 ? (
               /* Obra à venda sem preço definido: venda apenas sob consulta. */
               <p className={styles.exhibitionNote}>
@@ -268,18 +259,6 @@ export default function ArtworkDetail({ artwork, related }: Props) {
                     Comprar agora
                   </Link>
                 )}
-              </div>
-            )}
-
-            {/* Guarantee / trust block — só faz sentido para peças à venda */}
-            {!isExhibition && (
-              <div className={styles.guarantee}>
-                <ShieldCheck className={styles.guaranteeIcon} size={22} strokeWidth={1.5} aria-hidden="true" />
-                <p className={styles.guaranteeText}>
-                  <strong>Lorem ipsum dolor sit amet</strong>
-                  Consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore
-                  et dolore magna aliqua.
-                </p>
               </div>
             )}
 

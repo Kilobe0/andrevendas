@@ -63,17 +63,6 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* ── MANIFESTO ────────────────────────────────────── */}
-      <section className={`section ${styles.manifesto}`}>
-        <div className="container--narrow">
-          <span className="index">Manifesto</span>
-          <p className={styles.manifestoText}>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-            tempor incididunt — <em>ut labore et dolore magna aliqua.</em>
-          </p>
-        </div>
-      </section>
-
       {/* ── GRID DE OBRAS ────────────────────────────────── */}
       {grid.length > 0 && (
         <section className={`section ${styles.gridSection}`}>
@@ -127,23 +116,6 @@ export default async function HomePage() {
         </section>
       )}
 
-      {/* ── ARTISTA ──────────────────────────────────────── */}
-      <section className={`section ${styles.artistSection}`}>
-        <div className="container--narrow">
-          <div className={styles.artistContent}>
-            <span className="index">03 — O artista</span>
-            <h2 className={styles.artistTitle}>André Valença</h2>
-            <p className={styles.artistText}>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
-              tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
-              veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip.
-            </p>
-            <Link href="/artista" className="btn btn-outline" id="artist-cta">
-              Conheça o artista
-            </Link>
-          </div>
-        </div>
-      </section>
     </>
   );
 }

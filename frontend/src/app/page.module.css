@@ -212,6 +212,9 @@
   background: var(--bg-deep);
   color: var(--text-on-dark);
   padding: var(--sp-32) 0;
+  /* Última seção da home: anula o margin-top do footer para as duas
+     áreas escuras se emendarem sem faixa clara no meio */
+  margin-bottom: calc(-1 * var(--space-24));
 }
 
 .indexOnDark {

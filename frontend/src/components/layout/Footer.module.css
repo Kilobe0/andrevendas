@@ -36,25 +36,6 @@
   padding: var(--space-16) var(--space-10);
 }
 
-.brand { max-width: 280px; }
-
-.brandName {
-  display: block;
-  font-family: var(--font-mono);
-  font-size: var(--text-2xs);
-  font-weight: 500;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: var(--text-on-dark);
-  margin-bottom: var(--space-4);
-}
-
-.brandDesc {
-  font-size: var(--text-sm);
-  color: rgba(242, 238, 229, 0.55);
-  line-height: 1.7;
-}
-
 .links {
   display: flex;
   gap: var(--space-20);
@@ -102,6 +83,15 @@
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
+
+.bottomRight a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  transition: color var(--transition);
+}
+
+.bottomRight a:hover { color: var(--accent-warm); }
 
 @media (max-width: 768px) {
   .wordmarkWrap { padding: var(--sp-12) var(--sp-4) 0; }

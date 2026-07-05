@@ -78,7 +78,6 @@ function CatalogoContent() {
         <div className="container">
           <span className="label">Galeria</span>
           <h1 className={styles.pageTitle}>Catálogo de Obras</h1>
-          <p className={styles.pageDesc}>Obras originais, cada uma única e irreplicável.</p>
         </div>
       </div>
 
