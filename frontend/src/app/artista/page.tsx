@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import Image from 'next/image';
+import Link from 'next/link';
 import styles from './page.module.css';
 
 export const metadata: Metadata = {
@@ -119,7 +120,7 @@ export default function ArtistaPage() {
 
           <div className={styles.cta}>
             <p>Quer conhecer uma obra de perto ou conversar sobre um trabalho?</p>
-            <a href="/contato" className="btn btn-primary">Entrar em contato</a>
+            <Link href="/contato" className="btn btn-primary">Entrar em contato</Link>
           </div>
         </div>
       </div>

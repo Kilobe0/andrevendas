@@ -38,9 +38,9 @@ export default function CartDrawer() {
               <span className={styles.emptyIcon} aria-hidden="true">◻</span>
               <p className={styles.emptyText}>Seu carrinho está vazio</p>
               <p className={styles.emptyHint}>Explore o catálogo e adicione obras que despertem seu interesse.</p>
-              <button className="btn btn-outline" onClick={closeCart} style={{ marginTop: 'var(--sp-2)' }}>
+              <Link href="/catalogo" className="btn btn-outline" onClick={closeCart} style={{ marginTop: 'var(--sp-2)' }}>
                 Explorar obras
-              </button>
+              </Link>
             </div>
           ) : (
             <>
