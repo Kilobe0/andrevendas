@@ -3,14 +3,38 @@ import { useState } from 'react';
 import { CheckCircle2 } from 'lucide-react';
 import styles from './page.module.css';
 
+const CONTACT_EMAIL = 'andrevalencaguimaraes@gmail.com';
+
 export default function ContatoPage() {
   const [form, setForm] = useState({ name: '', email: '', message: '' });
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState(false);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    // Mock: in production, connect to a mail API
-    setSent(true);
+    setSending(true);
+    setError(false);
+    try {
+      const res = await fetch(`https://formsubmit.co/ajax/${CONTACT_EMAIL}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          message: form.message,
+          _subject: `Contato pelo site — ${form.name}`,
+          _template: 'table',
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || String(data.success) !== 'true') throw new Error(`HTTP ${res.status}`);
+      setSent(true);
+    } catch {
+      setError(true);
+    } finally {
+      setSending(false);
+    }
   }
 
   return (
@@ -96,8 +120,20 @@ export default function ContatoPage() {
                     id="contact-message"
                   />
                 </div>
-                <button type="submit" className="btn btn-primary" style={{ width: '100%' }} id="contact-submit">
-                  Enviar mensagem
+                {error && (
+                  <p role="alert" style={{ color: 'var(--color-error, #b3261e)', fontSize: '0.9rem' }}>
+                    Não foi possível enviar a mensagem. Tente novamente ou fale conosco
+                    pelo e-mail ou WhatsApp ao lado.
+                  </p>
+                )}
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  style={{ width: '100%' }}
+                  id="contact-submit"
+                  disabled={sending}
+                >
+                  {sending ? 'Enviando…' : 'Enviar mensagem'}
                 </button>
               </form>
             )}
