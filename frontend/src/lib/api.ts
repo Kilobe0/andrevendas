@@ -188,6 +188,13 @@ export const statusBadge = (status: Artwork['status']): { cls: string; label: st
 
 export const getImageUrl = (path: string) => {
   if (!path) return '/placeholder.jpg';
-  if (path.startsWith('http')) return path;
+  if (path.startsWith('http')) {
+    // Cloudinary: entrega otimizada — f_auto escolhe o melhor formato p/ o
+    // navegador (AVIF/WebP) e q_auto ajusta a compressão sem perda visível.
+    if (path.includes('res.cloudinary.com') && path.includes('/upload/') && !path.includes('/upload/f_auto')) {
+      return path.replace('/upload/', '/upload/f_auto,q_auto/');
+    }
+    return path;
+  }
   return `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}${path}`;
 };

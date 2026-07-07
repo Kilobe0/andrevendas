@@ -1,29 +1,21 @@
 import {
   Controller, Post, UseInterceptors, UploadedFile,
-  UseGuards, BadRequestException,
+  UseGuards, BadRequestException, ServiceUnavailableException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname, join } from 'path';
+import { memoryStorage } from 'multer';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { existsSync, mkdirSync } from 'fs';
-
-const uploadsDir = join(process.cwd(), 'uploads');
-if (!existsSync(uploadsDir)) mkdirSync(uploadsDir, { recursive: true });
+import { CloudinaryService } from './cloudinary.service';
 
 @Controller('upload')
 export class UploadController {
+  constructor(private readonly cloudinary: CloudinaryService) {}
+
   @Post()
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(
     FileInterceptor('file', {
-      storage: diskStorage({
-        destination: uploadsDir,
-        filename: (req, file, cb) => {
-          const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
-          cb(null, unique + extname(file.originalname));
-        },
-      }),
+      storage: memoryStorage(),
       fileFilter: (req, file, cb) => {
         if (!file.mimetype.match(/\/(jpg|jpeg|png|gif|webp)$/)) {
           return cb(new BadRequestException('Apenas imagens são permitidas'), false);
@@ -33,8 +25,14 @@ export class UploadController {
       limits: { fileSize: 10 * 1024 * 1024 },
     }),
   )
-  uploadFile(@UploadedFile() file: Express.Multer.File) {
+  async uploadFile(@UploadedFile() file: Express.Multer.File) {
     if (!file) throw new BadRequestException('Nenhum arquivo enviado');
-    return { url: `/uploads/${file.filename}`, filename: file.filename };
+    if (!this.cloudinary.isConfigured) {
+      throw new ServiceUnavailableException(
+        'Upload indisponível: variáveis CLOUDINARY_* não configuradas',
+      );
+    }
+    const result = await this.cloudinary.uploadImage(file.buffer);
+    return { url: result.secure_url, filename: result.public_id };
   }
 }
