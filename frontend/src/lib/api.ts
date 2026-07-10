@@ -119,6 +119,10 @@ export const createOrder = (data: {
     body: JSON.stringify(data),
   });
 
+// Público: usado pela página de retorno do checkout para acompanhar o Pix.
+export const getOrderStatus = (id: string) =>
+  apiFetch<{ status: 'PENDING' | 'PAID' | 'CANCELLED' }>(`/orders/${id}/status`);
+
 export const getOrders = (token: string) =>
   apiFetch<Order[]>('/orders', { headers: { Authorization: `Bearer ${token}` } });
 

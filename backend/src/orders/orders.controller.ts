@@ -27,6 +27,13 @@ export class OrdersController {
     return { received: true };
   }
 
+  // Público: só o status, sem dados do cliente. A página de retorno do
+  // checkout faz polling aqui até o webhook confirmar o Pix/boleto.
+  @Get(':id/status')
+  getStatus(@Param('id') id: string) {
+    return this.ordersService.getPublicStatus(id);
+  }
+
   @Get()
   @UseGuards(JwtAuthGuard)
   findAll() {

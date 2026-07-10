@@ -1,12 +1,18 @@
 'use client';
-import { Suspense, useEffect } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { CheckCircle2, Clock, XCircle, type LucideIcon } from 'lucide-react';
 import { useCart } from '@/lib/cart';
+import { getOrderStatus } from '@/lib/api';
 import styles from '../page.module.css';
 
 type Outcome = 'approved' | 'pending' | 'failure';
+
+// Pix/boleto: o MP redireciona como "pending" e a confirmação chega depois,
+// via webhook. Consultamos o pedido neste intervalo até ele sair de PENDING.
+const POLL_INTERVAL_MS = 4000;
+const POLL_MAX_MS = 15 * 60 * 1000;
 
 function resolveOutcome(status: string | null): Outcome {
   if (status === 'approved') return 'approved';
@@ -23,7 +29,7 @@ const CONTENT: Record<Outcome, { Icon: LucideIcon; title: string; text: string }
   pending: {
     Icon: Clock,
     title: 'Pagamento em processamento',
-    text: 'Estamos aguardando a confirmação do pagamento (Pix ou boleto podem levar alguns instantes). Assim que for aprovado, você receberá um e-mail. A obra fica reservada até lá.',
+    text: 'Estamos aguardando a confirmação do pagamento — Pix costuma aprovar em segundos. Pode deixar esta página aberta: ela se atualiza sozinha assim que o pagamento for confirmado. A obra fica reservada até lá.',
   },
   failure: {
     Icon: XCircle,
@@ -38,13 +44,38 @@ function RetornoContent() {
 
   // O Mercado Pago anexa o status do pagamento na URL de retorno.
   const status = params.get('status') || params.get('collection_status');
-  const outcome = resolveOutcome(status);
+  // external_reference é o id do pedido no nosso banco (vai na preference).
+  const orderId = params.get('external_reference');
+  const [outcome, setOutcome] = useState<Outcome>(() => resolveOutcome(status));
   const { Icon, title, text } = CONTENT[outcome];
 
   // Esvazia o carrinho quando o pagamento foi aprovado ou está a caminho.
   useEffect(() => {
     if (outcome === 'approved' || outcome === 'pending') clearCart();
   }, [outcome, clearCart]);
+
+  // Enquanto o pagamento está pendente, acompanha o pedido e troca a tela
+  // assim que o webhook confirmar (Pix aprova em segundos) ou cancelar.
+  useEffect(() => {
+    if (outcome !== 'pending' || !orderId) return;
+    const startedAt = Date.now();
+
+    const timer = setInterval(async () => {
+      if (Date.now() - startedAt > POLL_MAX_MS) {
+        clearInterval(timer);
+        return;
+      }
+      try {
+        const { status: orderStatus } = await getOrderStatus(orderId);
+        if (orderStatus === 'PAID') setOutcome('approved');
+        else if (orderStatus === 'CANCELLED') setOutcome('failure');
+      } catch {
+        // erro transitório (rede, cold start): tenta de novo no próximo tick
+      }
+    }, POLL_INTERVAL_MS);
+
+    return () => clearInterval(timer);
+  }, [outcome, orderId]);
 
   return (
     <div className={styles.page}>

@@ -198,6 +198,15 @@ export class OrdersService {
     return this.orderModel.findById(id).exec() as Promise<OrderDocument>;
   }
 
+  // Versão pública do pedido: expõe apenas o status (a página de retorno do
+  // checkout consulta sem autenticação). Id inválido cai em 404, não em 500.
+  async getPublicStatus(id: string): Promise<{ status: OrderStatus }> {
+    if (!Types.ObjectId.isValid(id)) throw new NotFoundException('Pedido não encontrado');
+    const order = await this.orderModel.findById(id).select('status').exec();
+    if (!order) throw new NotFoundException('Pedido não encontrado');
+    return { status: order.status };
+  }
+
   // Exclui um pedido. Se ainda estava PENDING, libera as obras reservadas
   // de volta ao catálogo (um pedido PAID não mexe nas obras já vendidas).
   async remove(id: string): Promise<void> {
