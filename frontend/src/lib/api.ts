@@ -10,7 +10,9 @@ async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
     const error = await res.json().catch(() => ({ message: 'Erro desconhecido' }));
     throw new Error(error.message || `HTTP ${res.status}`);
   }
-  return res.json();
+  // DELETEs respondem sem corpo — res.json() em corpo vazio lançaria erro.
+  const text = await res.text();
+  return (text ? JSON.parse(text) : undefined) as T;
 }
 
 // ─── Types ───────────────────────────────────────────────
