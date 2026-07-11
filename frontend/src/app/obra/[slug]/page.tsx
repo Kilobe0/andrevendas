@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getArtworks, getArtworkBySlug, getRelatedArtworks, formatPrice, getImageUrl } from '@/lib/api';
 import ArtworkDetail from '@/components/gallery/ArtworkDetail';
+import { SITE_URL } from '@/lib/site';
 
 // No export estático (GitHub Pages) cada obra vira um HTML gerado no build;
 // obras criadas depois só aparecem após um novo deploy.
@@ -24,17 +25,26 @@ interface Props {
   params: Promise<{ slug: string }>;
 }
 
+// As obras não têm descrição no banco (decisão de conteúdo); a meta description
+// é montada a partir da ficha técnica — só buscadores e prévias de link a veem.
+function seoDescription(artwork: { title: string; description?: string; material: string; dimensions: string; year?: number }) {
+  if (artwork.description) return artwork.description;
+  const ficha = [artwork.material, artwork.dimensions, artwork.year].filter(Boolean).join(', ');
+  return `${artwork.title} — ${ficha}. Obra original de André Valença, artista visual.`;
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
     const { slug } = await params;
     const artwork = await getArtworkBySlug(slug);
+    const description = seoDescription(artwork);
     return {
       title: `${artwork.title} — André Valença`,
-      description: artwork.description,
+      description,
       openGraph: {
         title: artwork.title,
-        description: artwork.description,
-        images: [{ url: getImageUrl(artwork.images[0]) }],
+        description,
+        images: [{ url: getImageUrl(artwork.images[0]), alt: artwork.title }],
         type: 'website',
       },
     };
@@ -62,7 +72,9 @@ export default async function ObraPage({ params }: Props) {
     '@context': 'https://schema.org',
     '@type': 'VisualArtwork',
     name: artwork.title,
-    description: artwork.description,
+    description: seoDescription(artwork),
+    url: `${SITE_URL}/obra/${slug}`,
+    image: artwork.images?.length ? getImageUrl(artwork.images[0]) : undefined,
     artMedium: artwork.material,
     // Peças de acervo (EXHIBITION) não estão à venda: sem bloco de oferta.
     ...(artwork.status === 'EXHIBITION'

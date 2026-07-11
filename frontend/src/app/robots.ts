@@ -1,6 +1,7 @@
 import { MetadataRoute } from 'next';
+import { SITE_URL } from '@/lib/site';
 
-// Exigido pelo output: 'export' (GitHub Pages)
+// Exigido pelo output: 'export' (site estático no Cloudflare Pages)
 export const dynamic = 'force-static';
 
 export default function robots(): MetadataRoute.Robots {
@@ -10,6 +11,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: ['/admin/', '/checkout/', '/carrinho/'],
     },
-    sitemap: 'https://andrevalenca.com.br/sitemap.xml',
+    sitemap: `${SITE_URL}/sitemap.xml`,
   };
 }

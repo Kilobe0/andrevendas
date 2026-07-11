@@ -3,6 +3,7 @@ import ArtworkCard from '@/components/gallery/ArtworkCard';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getImageUrl } from '@/lib/api';
+import { SITE_URL, SITE_NAME } from '@/lib/site';
 import styles from './page.module.css';
 
 export default async function HomePage() {
@@ -14,8 +15,32 @@ export default async function HomePage() {
   const hero = featured[0];
   const grid = featured.slice(1);
 
+  // Dados estruturados do site e do artista para os buscadores
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'WebSite',
+        name: SITE_NAME,
+        url: SITE_URL,
+        inLanguage: 'pt-BR',
+      },
+      {
+        '@type': 'Person',
+        name: 'André Valença',
+        jobTitle: 'Artista visual',
+        description: 'Artista visual — esculturas, pinturas e desenhos originais.',
+        url: `${SITE_URL}/artista`,
+      },
+    ],
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* ── HERO — composição editorial ──────────────────── */}
       {hero && (
         <section className={styles.hero} data-header-divider>

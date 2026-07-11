@@ -3,6 +3,7 @@ import { Newsreader, Instrument_Sans, Spline_Sans_Mono } from 'next/font/google'
 import './globals.css';
 import { CartProvider } from '@/lib/cart';
 import SiteChrome from '@/components/layout/SiteChrome';
+import { SITE_URL, SITE_NAME } from '@/lib/site';
 
 const serif = Newsreader({
   subsets: ['latin'],
@@ -25,15 +26,19 @@ const mono = Spline_Sans_Mono({
 });
 
 export const metadata: Metadata = {
-  title: { default: 'André Valença — Galeria de Arte', template: '%s | André Valença' },
+  // Resolve URLs relativas de OG/canonical para o domínio de produção
+  metadataBase: new URL(SITE_URL),
+  title: { default: SITE_NAME, template: '%s | André Valença' },
   description: 'Galeria de arte de André Valença — esculturas, pinturas e desenhos originais. Obras únicas à venda e acervo do artista.',
   keywords: ['galeria de arte', 'obras de arte', 'esculturas', 'pinturas', 'arte contemporânea', 'André Valença'],
   authors: [{ name: 'André Valença' }],
+  // './' faz cada rota apontar o canonical para si mesma
+  alternates: { canonical: './' },
   openGraph: {
     type: 'website',
     locale: 'pt_BR',
-    url: 'https://andrevalenca.com.br',
-    siteName: 'André Valença — Galeria de Arte',
+    url: './',
+    siteName: SITE_NAME,
     title: 'André Valença — Galeria de Arte Contemporânea',
     description: 'Esculturas, pinturas e desenhos originais de André Valença.',
   },

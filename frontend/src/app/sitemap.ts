@@ -1,9 +1,10 @@
 import { MetadataRoute } from 'next';
+import { SITE_URL } from '@/lib/site';
 
-// Exigido pelo output: 'export' (GitHub Pages)
+// Exigido pelo output: 'export' (site estático no Cloudflare Pages)
 export const dynamic = 'force-static';
 
-const BASE_URL = 'https://andrevalenca.com.br';
+const BASE_URL = SITE_URL;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [
