@@ -13,6 +13,11 @@ export interface CreatePreferenceInput {
   payer?: { name?: string; email?: string };
 }
 
+// Validade do link de pagamento. Precisa ser MENOR que o prazo em que o
+// backend libera reservas de pedidos pendentes (orders.service), para que
+// ninguém consiga pagar uma obra que já voltou ao catálogo.
+export const PREFERENCE_TTL_MS = 30 * 60 * 1000;
+
 export interface PaymentInfo {
   id: string;
   status: string; // approved | pending | in_process | rejected | cancelled | refunded
@@ -62,6 +67,9 @@ export class MercadoPagoService {
             ? { name: input.payer.name, email: input.payer.email }
             : undefined,
           back_urls: backUrls,
+          // Link expira junto com a reserva da obra (ver PREFERENCE_TTL_MS).
+          expires: true,
+          expiration_date_to: new Date(Date.now() + PREFERENCE_TTL_MS).toISOString(),
           // auto_return e notification_url exigem URLs https públicas;
           // em localhost o MP rejeita a criação, então só enviamos quando válidas.
           ...(isHttps(returnUrl) ? { auto_return: 'approved' as const } : {}),

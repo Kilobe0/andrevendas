@@ -1,8 +1,12 @@
 'use client';
-import { useState } from 'react';
-import { AlertTriangle, Lock, Package, BadgeCheck, Info, MapPin } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { AlertTriangle, Lock, Package, BadgeCheck, Info, MapPin, Clock } from 'lucide-react';
 import { useCart } from '@/lib/cart';
-import { createOrder, formatPrice, getImageUrl } from '@/lib/api';
+import {
+  createOrder, formatPrice, getImageUrl, getOrderStatus,
+  loadCheckoutSession, saveCheckoutSession, clearCheckoutSession,
+  CHECKOUT_SESSION_TTL_MS, type CheckoutSession,
+} from '@/lib/api';
 import Image from 'next/image';
 import Link from 'next/link';
 import styles from './page.module.css';
@@ -44,8 +48,52 @@ export default function CheckoutPage() {
   const [error, setError] = useState('');
   const [cepCheck, setCepCheck] = useState<CepCheck>('idle');
   const [showReservaDialog, setShowReservaDialog] = useState(false);
+  const [pendingSession, setPendingSession] = useState<CheckoutSession | null>(null);
 
   const update = (k: keyof FormData, v: string) => setForm(f => ({ ...f, [k]: v }));
+
+  // Pagamento em andamento? (cliente foi ao Mercado Pago e voltou sem pagar)
+  // Confirma no servidor que o pedido ainda está pendente antes de oferecer
+  // o retorno ao pagamento — se já foi pago ou expirou, descarta a sessão.
+  useEffect(() => {
+    const session = loadCheckoutSession();
+    if (!session) return;
+    getOrderStatus(session.orderId)
+      .then(({ status }) => {
+        if (status === 'PENDING') setPendingSession(session);
+        else clearCheckoutSession();
+      })
+      .catch(() => setPendingSession(session)); // rede falhou: melhor oferecer do que sumir
+  }, []);
+
+  const dismissSession = () => {
+    clearCheckoutSession();
+    setPendingSession(null);
+  };
+
+  const sessionBanner = pendingSession && (
+    <div className={styles.formBlock} role="status" style={{ marginBottom: '1.5rem' }}>
+      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
+        <Clock size={20} strokeWidth={1.5} aria-hidden="true" style={{ flexShrink: 0, marginTop: '2px' }} />
+        <div>
+          <strong>Você tem um pagamento em andamento.</strong>
+          <p style={{ margin: '0.35rem 0 0.85rem', color: 'var(--text-muted)', fontSize: 'var(--text-sm, 0.9rem)' }}>
+            A obra segue reservada para você por até{' '}
+            {Math.max(1, Math.round((pendingSession.expiresAt - Date.now()) / 60000))} minutos.
+            Dá para voltar ao Mercado Pago e concluir de onde parou.
+          </p>
+          <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
+            <a href={pendingSession.initPoint} className="btn btn-primary" id="resume-payment-btn">
+              Continuar pagamento
+            </a>
+            <button type="button" className="btn btn-outline" onClick={dismissSession}>
+              Descartar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
   // Máscara leve + consulta ao ViaCEP quando o CEP fica completo: preenche o
   // endereço e verifica se a cidade está na área de entrega (Sete Lagoas e região)
@@ -87,6 +135,7 @@ export default function CheckoutPage() {
     return (
       <div className={styles.page}>
         <div className="container--narrow">
+          {sessionBanner}
           <div className={styles.emptyCart}>
             <span style={{ fontSize: '2.5rem', color: 'var(--border)' }} aria-hidden="true">◻</span>
             <h1 className={styles.emptyCartTitle}>Carrinho vazio</h1>
@@ -118,7 +167,7 @@ export default function CheckoutPage() {
     setLoading(true);
     setError('');
     try {
-      const { initPoint } = await createOrder({
+      const { order, initPoint } = await createOrder({
         customer: {
           name: form.name, email: form.email, phone: form.phone, cpf: form.cpf,
           address: {
@@ -127,6 +176,13 @@ export default function CheckoutPage() {
           },
         },
         items: items.map(i => ({ artworkId: i.artwork._id, variant: i.variant })),
+      });
+      // Guarda a sessão para o cliente poder retomar o pagamento se fechar
+      // a aba do Mercado Pago (a reserva e o link duram ~30 min).
+      saveCheckoutSession({
+        orderId: order._id,
+        initPoint,
+        expiresAt: Date.now() + CHECKOUT_SESSION_TTL_MS,
       });
       // Redireciona para o Checkout Pro do Mercado Pago. O carrinho só é
       // limpo na volta, quando o pagamento é aprovado (página /checkout/retorno).
@@ -157,6 +213,8 @@ export default function CheckoutPage() {
           </div>
         </div>
       </div>
+
+      {sessionBanner && <div className="container--narrow" style={{ marginTop: '1.5rem' }}>{sessionBanner}</div>}
 
       <div className={styles.layout}>
         {/* ── Form ── */}

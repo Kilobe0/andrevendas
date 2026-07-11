@@ -4,7 +4,7 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { CheckCircle2, Clock, XCircle, type LucideIcon } from 'lucide-react';
 import { useCart } from '@/lib/cart';
-import { getOrderStatus } from '@/lib/api';
+import { getOrderStatus, clearCheckoutSession } from '@/lib/api';
 import styles from '../page.module.css';
 
 type Outcome = 'approved' | 'pending' | 'failure';
@@ -50,8 +50,11 @@ function RetornoContent() {
   const { Icon, title, text } = CONTENT[outcome];
 
   // Esvazia o carrinho quando o pagamento foi aprovado ou está a caminho.
+  // Pagamento resolvido (aprovado ou falhou) também encerra a sessão de
+  // checkout — não faz sentido oferecer "continuar pagamento" depois disso.
   useEffect(() => {
     if (outcome === 'approved' || outcome === 'pending') clearCart();
+    if (outcome === 'approved' || outcome === 'failure') clearCheckoutSession();
   }, [outcome, clearCart]);
 
   // Enquanto o pagamento está pendente, acompanha o pedido e troca a tela

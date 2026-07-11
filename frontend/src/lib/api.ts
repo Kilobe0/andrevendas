@@ -125,6 +125,41 @@ export const createOrder = (data: {
 export const getOrderStatus = (id: string) =>
   apiFetch<{ status: 'PENDING' | 'PAID' | 'CANCELLED' }>(`/orders/${id}/status`);
 
+// ─── Sessão de checkout ──────────────────────────────────
+// Guarda o pagamento em andamento para o cliente poder voltar ao Mercado
+// Pago se fechar a aba (a obra fica reservada ~30 min; o link expira junto).
+export interface CheckoutSession {
+  orderId: string;
+  initPoint: string;
+  expiresAt: number; // epoch ms
+}
+
+const CHECKOUT_SESSION_KEY = 'av_checkout_session';
+export const CHECKOUT_SESSION_TTL_MS = 30 * 60 * 1000;
+
+export function saveCheckoutSession(s: CheckoutSession) {
+  try { localStorage.setItem(CHECKOUT_SESSION_KEY, JSON.stringify(s)); } catch {}
+}
+
+export function loadCheckoutSession(): CheckoutSession | null {
+  try {
+    const raw = localStorage.getItem(CHECKOUT_SESSION_KEY);
+    if (!raw) return null;
+    const s = JSON.parse(raw) as CheckoutSession;
+    if (!s.orderId || !s.initPoint || Date.now() > s.expiresAt) {
+      clearCheckoutSession();
+      return null;
+    }
+    return s;
+  } catch {
+    return null;
+  }
+}
+
+export function clearCheckoutSession() {
+  try { localStorage.removeItem(CHECKOUT_SESSION_KEY); } catch {}
+}
+
 export const getOrders = (token: string) =>
   apiFetch<Order[]>('/orders', { headers: { Authorization: `Bearer ${token}` } });
 

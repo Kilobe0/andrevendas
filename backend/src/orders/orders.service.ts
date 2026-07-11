@@ -8,7 +8,12 @@ import { Type } from 'class-transformer';
 import { Order, OrderDocument, OrderStatus } from './order.schema';
 import { ArtworksService } from '../artworks/artworks.service';
 import { ArtworkStatus } from '../artworks/artwork.schema';
-import { MercadoPagoService } from '../payments/mercadopago.service';
+import { MercadoPagoService, PREFERENCE_TTL_MS } from '../payments/mercadopago.service';
+
+// Reservas de pedidos pendentes expiram depois disso. Margem de 5 min acima
+// da validade do link de pagamento (PREFERENCE_TTL_MS): quando o backend
+// libera a obra, o Mercado Pago já não aceita mais o pagamento antigo.
+const RESERVATION_TTL_MS = PREFERENCE_TTL_MS + 5 * 60 * 1000;
 
 // Decorators são obrigatórios: o ValidationPipe global (whitelist: true) descarta
 // qualquer propriedade sem validação — sem isso o dto chega vazio no serviço.
@@ -56,6 +61,10 @@ export class OrdersService {
   ) {}
 
   async create(dto: CreateOrderDto): Promise<{ order: OrderDocument; initPoint: string }> {
+    // Antes de validar disponibilidade, devolve ao catálogo obras presas em
+    // checkouts abandonados (pedido PENDING além do prazo da reserva).
+    await this.expireStaleOrders();
+
     const orderItems: Array<{ artwork: Types.ObjectId; title: string; price: number; image: string; variant?: string }> = [];
     let total = 0;
 
@@ -143,7 +152,14 @@ export class OrdersService {
       return;
     }
     if (order.status !== OrderStatus.PENDING) {
-      // Já confirmado ou cancelado antes — nada a fazer.
+      // Já confirmado ou cancelado antes — nada a fazer. Exceção que merece
+      // alarde: pagamento aprovado de um pedido que expirou nesse meio-tempo
+      // (cliente pagou no limite do prazo). Precisa de ação manual do admin.
+      if (payment.status === 'approved' && order.status === OrderStatus.CANCELLED) {
+        this.logger.error(
+          `Pagamento ${payment.id} APROVADO para pedido ${orderId} já cancelado/expirado — verificar reembolso ou reativação manual.`,
+        );
+      }
       return;
     }
 
@@ -173,6 +189,24 @@ export class OrdersService {
       this.logger.log(`Pedido ${orderId} cancelado (pagamento ${payment.status}).`);
     }
     // pending / in_process: mantém o pedido PENDING e a obra reservada.
+  }
+
+  // Cancela pedidos PENDING mais velhos que a reserva e libera suas obras.
+  // Rodado a cada tentativa de checkout — não precisa de cron, o próprio
+  // fluxo de compra mantém o catálogo saudável.
+  private async expireStaleOrders(): Promise<void> {
+    const cutoff = new Date(Date.now() - RESERVATION_TTL_MS);
+    const stale = await this.orderModel
+      .find({ status: OrderStatus.PENDING, createdAt: { $lt: cutoff } })
+      .exec();
+    for (const order of stale) {
+      await this.releaseItems(
+        order.items.map(i => ({ artworkId: String(i.artwork), variant: i.variant || undefined })),
+      );
+      order.status = OrderStatus.CANCELLED;
+      await order.save();
+      this.logger.log(`Pedido ${order._id} expirado após ${RESERVATION_TTL_MS / 60000} min; obra(s) liberada(s).`);
+    }
   }
 
   // Devolve obras/variantes ao catálogo.
