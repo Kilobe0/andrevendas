@@ -60,7 +60,8 @@ export default function NovaObraPage() {
         ...form,
         price: Number(form.price),
         quantity: Math.max(1, Number(form.quantity) || 1),
-        weight: form.weight === '' ? undefined : Number(form.weight),
+        // Admin digita em gramas; o banco guarda em kg (padrão das APIs de frete).
+        weight: form.weight === '' ? undefined : Number(form.weight) / 1000,
         images,
       } as any, token);
       router.push('/admin/obras');
@@ -122,9 +123,9 @@ export default function NovaObraPage() {
                   </div>
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Peso (kg)</label>
-                  <input className="form-input" type="number" min="0" step="0.001" value={form.weight}
-                    onChange={e => updateForm('weight', e.target.value)} placeholder="ex: 2.5" id="obra-weight" />
+                  <label className="form-label">Peso (gramas)</label>
+                  <input className="form-input" type="number" min="0" step="1" value={form.weight}
+                    onChange={e => updateForm('weight', e.target.value)} placeholder="ex: 300 ou 2390" id="obra-weight" />
                 </div>
                 <div className={styles.row}>
                   <div className="form-group">

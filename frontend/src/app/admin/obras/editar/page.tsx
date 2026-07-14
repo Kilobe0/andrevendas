@@ -43,7 +43,8 @@ function EditarObraInner() {
           description: a.description || '',
           material: a.material,
           dimensions: a.dimensions || '',
-          weight: a.weight != null ? String(a.weight) : '',
+          // Banco guarda kg; o campo do admin trabalha em gramas.
+          weight: a.weight != null ? String(Math.round(a.weight * 1000)) : '',
           price: String(a.price),
           quantity: String(a.quantity ?? 1),
           status: a.status,
@@ -83,7 +84,8 @@ function EditarObraInner() {
         ...form,
         price: Number(form.price),
         quantity: Math.max(0, Number(form.quantity) || 0),
-        weight: form.weight === '' ? undefined : Number(form.weight),
+        // Admin digita em gramas; o banco guarda em kg (padrão das APIs de frete).
+        weight: form.weight === '' ? undefined : Number(form.weight) / 1000,
         images,
       } as any, token);
       router.push('/admin/obras');
@@ -152,9 +154,9 @@ function EditarObraInner() {
                     </div>
                   </div>
                   <div className="form-group">
-                    <label className="form-label">Peso (kg)</label>
-                    <input className="form-input" type="number" min="0" step="0.001" value={form.weight}
-                      onChange={e => updateField('weight', e.target.value)} placeholder="ex: 2.5" id="obra-weight" />
+                    <label className="form-label">Peso (gramas)</label>
+                    <input className="form-input" type="number" min="0" step="1" value={form.weight}
+                      onChange={e => updateField('weight', e.target.value)} placeholder="ex: 300 ou 2390" id="obra-weight" />
                   </div>
                   <div className={styles.row}>
                     <div className="form-group">
