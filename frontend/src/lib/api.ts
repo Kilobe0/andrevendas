@@ -36,7 +36,8 @@ export interface Artwork {
   description: string;
   material: string;
   dimensions: string;
-  weight?: string;
+  // Peso em kg (numérico para cálculo de frete)
+  weight?: number;
   year?: number;
   price: number;
   // Unidades ainda disponíveis (obras com cópias idênticas). Ausente = 1.

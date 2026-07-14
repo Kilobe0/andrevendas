@@ -164,10 +164,10 @@ export default function ArtworkDetail({ artwork, related }: Props) {
                   <dd className={styles.specValue}>{artwork.dimensions}</dd>
                 </div>
               )}
-              {artwork.weight && (
+              {!!artwork.weight && (
                 <div className={styles.spec}>
                   <dt className={styles.specLabel}>Peso</dt>
-                  <dd className={styles.specValue}>{artwork.weight}</dd>
+                  <dd className={styles.specValue}>{artwork.weight.toLocaleString('pt-BR')} kg</dd>
                 </div>
               )}
               {artwork.year && (

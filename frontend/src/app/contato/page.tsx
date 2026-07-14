@@ -49,6 +49,7 @@ export default function ContatoPage() {
       <div className="container--narrow">
         <div className={styles.layout}>
           <div className={styles.info}>
+            {/* Bloco "Atendimento" oculto a pedido — restaurar removendo o comentário
             <div className={styles.infoBlock}>
               <h2 className={styles.infoTitle}>Atendimento</h2>
               <p className={styles.infoText}>
@@ -56,6 +57,7 @@ export default function ContatoPage() {
                 pelo formulário ou fale diretamente pelos canais abaixo.
               </p>
             </div>
+            */}
 
             <div className={styles.contacts}>
               <div className={styles.contactItem}>

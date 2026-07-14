@@ -22,7 +22,7 @@ function EditarObraInner() {
   const [images, setImages] = useState<string[]>([]);
 
   const [form, setForm] = useState({
-    title: '', slug: '', description: '', material: '', dimensions: '',
+    title: '', slug: '', description: '', material: '', dimensions: '', weight: '',
     price: '', quantity: '1', status: 'AVAILABLE', featured: false, category: '',
   });
 
@@ -43,6 +43,7 @@ function EditarObraInner() {
           description: a.description || '',
           material: a.material,
           dimensions: a.dimensions || '',
+          weight: a.weight != null ? String(a.weight) : '',
           price: String(a.price),
           quantity: String(a.quantity ?? 1),
           status: a.status,
@@ -82,6 +83,7 @@ function EditarObraInner() {
         ...form,
         price: Number(form.price),
         quantity: Math.max(0, Number(form.quantity) || 0),
+        weight: form.weight === '' ? undefined : Number(form.weight),
         images,
       } as any, token);
       router.push('/admin/obras');
@@ -148,6 +150,11 @@ function EditarObraInner() {
                       <label className="form-label">Dimensões</label>
                       <input className="form-input" value={form.dimensions} onChange={e => updateField('dimensions', e.target.value)} placeholder="ex: 60 × 80 cm" />
                     </div>
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Peso (kg)</label>
+                    <input className="form-input" type="number" min="0" step="0.001" value={form.weight}
+                      onChange={e => updateField('weight', e.target.value)} placeholder="ex: 2.5" id="obra-weight" />
                   </div>
                   <div className={styles.row}>
                     <div className="form-group">

@@ -14,7 +14,7 @@ export class CreateArtworkDto {
   @IsOptional() @IsString() description?: string;
   @IsString() material: string;
   @IsString() dimensions: string;
-  @IsOptional() @IsString() weight?: string;
+  @IsOptional() @IsNumber() @Min(0) weight?: number;
   @IsOptional() @IsNumber() year?: number;
   @IsNumber() @Min(0) price: number;
   @IsOptional() @IsNumber() @Min(0) quantity?: number;
@@ -31,7 +31,7 @@ export class UpdateArtworkDto {
   @IsOptional() @IsString() description?: string;
   @IsOptional() @IsString() material?: string;
   @IsOptional() @IsString() dimensions?: string;
-  @IsOptional() @IsString() weight?: string;
+  @IsOptional() @IsNumber() @Min(0) weight?: number;
   @IsOptional() @IsNumber() year?: number;
   @IsOptional() @IsNumber() @Min(0) price?: number;
   @IsOptional() @IsNumber() @Min(0) quantity?: number;

@@ -45,8 +45,9 @@ export class Artwork {
   @Prop({ required: true })
   dimensions: string;
 
-  @Prop()
-  weight: string;
+  // Peso em kg (numérico para futura integração com API de frete).
+  @Prop({ min: 0 })
+  weight: number;
 
   @Prop()
   year: number;

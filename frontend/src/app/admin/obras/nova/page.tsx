@@ -16,7 +16,7 @@ export default function NovaObraPage() {
   const [images, setImages] = useState<string[]>([]);
 
   const [form, setForm] = useState({
-    title: '', slug: '', description: '', material: '', dimensions: '',
+    title: '', slug: '', description: '', material: '', dimensions: '', weight: '',
     price: '', quantity: '1', status: 'AVAILABLE', featured: false, category: '',
   });
 
@@ -60,6 +60,7 @@ export default function NovaObraPage() {
         ...form,
         price: Number(form.price),
         quantity: Math.max(1, Number(form.quantity) || 1),
+        weight: form.weight === '' ? undefined : Number(form.weight),
         images,
       } as any, token);
       router.push('/admin/obras');
@@ -119,6 +120,11 @@ export default function NovaObraPage() {
                     <label className="form-label">Dimensões</label>
                     <input className="form-input" value={form.dimensions} onChange={e => updateForm('dimensions', e.target.value)} placeholder="ex: 60 × 80 cm" />
                   </div>
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Peso (kg)</label>
+                  <input className="form-input" type="number" min="0" step="0.001" value={form.weight}
+                    onChange={e => updateForm('weight', e.target.value)} placeholder="ex: 2.5" id="obra-weight" />
                 </div>
                 <div className={styles.row}>
                   <div className="form-group">
