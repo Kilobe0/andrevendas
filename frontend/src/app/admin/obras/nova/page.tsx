@@ -56,6 +56,12 @@ export default function NovaObraPage() {
     e.preventDefault();
     if (!form.category) { toast('Selecione uma categoria', 'error'); return; }
     if (images.length === 0) { toast('Adicione ao menos uma imagem', 'error'); return; }
+    // Aceita "300", "2390", "2.390", "300g"... — só os dígitos importam.
+    const grams = form.weight.replace(/\D/g, '');
+    if (form.weight.trim() !== '' && grams === '') {
+      toast('Peso inválido — digite em gramas, ex: 300', 'error');
+      return;
+    }
     setLoading(true);
     try {
       await createArtwork({
@@ -63,7 +69,7 @@ export default function NovaObraPage() {
         price: Number(form.price),
         quantity: Math.max(1, Number(form.quantity) || 1),
         // Admin digita em gramas; o banco guarda em kg (padrão das APIs de frete).
-        weight: form.weight === '' ? undefined : Number(form.weight) / 1000,
+        weight: grams === '' ? undefined : Number(grams) / 1000,
         images,
       } as any, token);
       toast(`Obra "${form.title}" criada`, 'success', { flash: true });
@@ -127,7 +133,9 @@ export default function NovaObraPage() {
                 </div>
                 <div className="form-group">
                   <label className="form-label">Peso (gramas)</label>
-                  <input className="form-input" type="number" min="0" step="1" value={form.weight}
+                  {/* type="text": input number engole silenciosamente valores com
+                      vírgula/unidade ("2,390", "300g") e salvava sem peso. */}
+                  <input className="form-input" type="text" inputMode="numeric" value={form.weight}
                     onChange={e => updateForm('weight', e.target.value)} placeholder="ex: 300 ou 2390" id="obra-weight" />
                 </div>
                 <div className={styles.row}>
