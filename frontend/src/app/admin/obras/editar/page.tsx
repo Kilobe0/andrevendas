@@ -139,9 +139,9 @@ function EditarObraInner() {
                     <input className="form-input" value={form.slug} onChange={e => updateField('slug', e.target.value)} />
                   </div>
                   <div className="form-group">
-                    <label className="form-label">Descrição artística *</label>
+                    <label className="form-label">Descrição artística</label>
                     <textarea className="form-textarea" rows={5} value={form.description}
-                      onChange={e => updateField('description', e.target.value)} required id="obra-desc" />
+                      onChange={e => updateField('description', e.target.value)} id="obra-desc" />
                   </div>
                   <div className={styles.row}>
                     <div className="form-group">
