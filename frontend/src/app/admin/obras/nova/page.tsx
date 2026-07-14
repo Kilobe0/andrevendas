@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { LayoutDashboard, Inbox, Frame, Plus, ArrowLeft, X } from 'lucide-react';
 import { getCategories, createArtwork, uploadImage, Category, getImageUrl } from '@/lib/api';
+import { toast } from '@/components/admin/Toast';
 import styles from './page.module.css';
 
 export default function NovaObraPage() {
@@ -43,8 +44,9 @@ export default function NovaObraPage() {
     try {
       const { url } = await uploadImage(e.target.files[0], token);
       setImages(prev => [...prev, url]);
+      toast('Imagem enviada');
     } catch (err: any) {
-      alert(err.message);
+      toast(err.message || 'Erro ao enviar a imagem', 'error');
     } finally {
       setUploading(false);
     }
@@ -52,8 +54,8 @@ export default function NovaObraPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!form.category) { alert('Selecione uma categoria'); return; }
-    if (images.length === 0) { alert('Adicione ao menos uma imagem'); return; }
+    if (!form.category) { toast('Selecione uma categoria', 'error'); return; }
+    if (images.length === 0) { toast('Adicione ao menos uma imagem', 'error'); return; }
     setLoading(true);
     try {
       await createArtwork({
@@ -64,9 +66,10 @@ export default function NovaObraPage() {
         weight: form.weight === '' ? undefined : Number(form.weight) / 1000,
         images,
       } as any, token);
+      toast(`Obra "${form.title}" criada`, 'success', { flash: true });
       router.push('/admin/obras');
     } catch (err: any) {
-      alert(err.message);
+      toast(err.message || 'Erro ao criar a obra', 'error');
     } finally {
       setLoading(false);
     }

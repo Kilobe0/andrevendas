@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { LayoutDashboard, Inbox, Frame, Plus } from 'lucide-react';
 import { getOrders, deleteOrder, Order, formatPrice, getImageUrl } from '@/lib/api';
+import { toast } from '@/components/admin/Toast';
 import styles from './page.module.css';
 
 const STATUS_LABELS: Record<string, string> = { PENDING: 'Pendente', PAID: 'Pago', CANCELLED: 'Cancelado' };
@@ -51,8 +52,9 @@ export default function AdminPedidosPage() {
     try {
       await deleteOrder(order._id, token);
       setOrders(prev => prev.filter(o => o._id !== order._id));
+      toast('Pedido excluído');
     } catch (e: any) {
-      alert(e.message || 'Erro ao excluir o pedido');
+      toast(e.message || 'Erro ao excluir o pedido', 'error');
     } finally {
       setDeleting(null);
     }

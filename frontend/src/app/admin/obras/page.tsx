@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { LayoutDashboard, Inbox, Frame, Plus } from 'lucide-react';
 import { getArtworks, deleteArtwork, Artwork, formatPrice, getImageUrl, statusBadge } from '@/lib/api';
+import { toast } from '@/components/admin/Toast';
 import styles from './page.module.css';
 
 export default function AdminObrasPage() {
@@ -33,8 +34,9 @@ export default function AdminObrasPage() {
     try {
       await deleteArtwork(id, token);
       setArtworks(prev => prev.filter(a => a._id !== id));
+      toast(`Obra "${title}" removida`);
     } catch (e: any) {
-      alert(e.message);
+      toast(e.message || 'Erro ao remover a obra', 'error');
     } finally {
       setDeleting(null);
     }

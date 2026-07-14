@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { LayoutDashboard, Inbox, Frame, Plus, ArrowLeft, X } from 'lucide-react';
 import { getArtworks, getCategories, updateArtwork, uploadImage, Category, getImageUrl } from '@/lib/api';
+import { toast } from '@/components/admin/Toast';
 // Reaproveita o visual da tela "Nova Obra" (mesmo layout de formulário).
 import styles from '../nova/page.module.css';
 
@@ -67,8 +68,9 @@ function EditarObraInner() {
     try {
       const { url } = await uploadImage(e.target.files[0], token);
       setImages(prev => [...prev, url]);
+      toast('Imagem enviada');
     } catch (err: any) {
-      alert(err.message);
+      toast(err.message || 'Erro ao enviar a imagem', 'error');
     } finally {
       setUploading(false);
     }
@@ -76,8 +78,8 @@ function EditarObraInner() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!form.category) { alert('Selecione uma categoria'); return; }
-    if (images.length === 0) { alert('Adicione ao menos uma imagem'); return; }
+    if (!form.category) { toast('Selecione uma categoria', 'error'); return; }
+    if (images.length === 0) { toast('Adicione ao menos uma imagem', 'error'); return; }
     setSaving(true);
     try {
       await updateArtwork(id, {
@@ -88,9 +90,10 @@ function EditarObraInner() {
         weight: form.weight === '' ? undefined : Number(form.weight) / 1000,
         images,
       } as any, token);
+      toast(`Alterações de "${form.title}" salvas`, 'success', { flash: true });
       router.push('/admin/obras');
     } catch (err: any) {
-      alert(err.message);
+      toast(err.message || 'Erro ao salvar as alterações', 'error');
     } finally {
       setSaving(false);
     }
