@@ -36,6 +36,46 @@
   padding-bottom: var(--sp-24);
 }
 
+/* ── Toggle de filtros (mobile) ───────────────────────────── */
+.filtersToggle {
+  display: none;
+  align-items: center;
+  gap: var(--sp-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text);
+  padding: var(--sp-3) 0;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  width: 100%;
+}
+
+.filtersToggleCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  font-size: 10px;
+  letter-spacing: 0;
+  color: var(--text-inverse);
+  background: var(--accent);
+  border-radius: 999px;
+}
+
+.filtersToggle svg {
+  margin-left: auto;
+  transition: transform var(--transition);
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
 /* ── Sidebar — índice de filtros ──────────────────────────── */
 .sidebar {
   position: sticky;
@@ -237,15 +277,22 @@
 @media (max-width: 900px) {
   .layout {
     grid-template-columns: 1fr;
-    gap: var(--sp-10);
+    gap: var(--sp-6);
+  }
+  .filtersToggle {
+    display: flex;
   }
   .sidebar {
+    display: none;
     position: static;
     flex-direction: row;
     flex-wrap: wrap;
     gap: var(--sp-8);
     padding-bottom: var(--sp-6);
     border-bottom: 1px solid var(--border);
+  }
+  .sidebarOpen {
+    display: flex;
   }
   .filterSection { min-width: 160px; }
 }

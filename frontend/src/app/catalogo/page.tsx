@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { X } from 'lucide-react';
+import { X, ChevronDown } from 'lucide-react';
 import { getArtworks, getCategories, Artwork, Category } from '@/lib/api';
 import ArtworkCard from '@/components/gallery/ArtworkCard';
 import styles from './page.module.css';
@@ -30,6 +30,7 @@ function CatalogoContent() {
   const [categoryFilter, setCategoryFilter] = useState(searchParams.get('categoria') || '');
   const [materialFilter, setMaterialFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   useEffect(() => {
     getCategories().then(setCategories).catch(() => {});
@@ -84,8 +85,31 @@ function CatalogoContent() {
       <div className="container">
         <div className={styles.layout}>
 
+          {/* Toggle de filtros — visível só no mobile */}
+          <button
+            className={styles.filtersToggle}
+            onClick={() => setFiltersOpen(o => !o)}
+            aria-expanded={filtersOpen}
+            aria-controls="catalog-filters"
+          >
+            Filtros
+            {activeChips.length > 0 && (
+              <span className={styles.filtersToggleCount}>{activeChips.length}</span>
+            )}
+            <ChevronDown
+              size={14}
+              strokeWidth={1.5}
+              aria-hidden="true"
+              className={filtersOpen ? styles.chevronOpen : undefined}
+            />
+          </button>
+
           {/* Sidebar */}
-          <aside className={styles.sidebar} aria-label="Filtros">
+          <aside
+            id="catalog-filters"
+            className={`${styles.sidebar} ${filtersOpen ? styles.sidebarOpen : ''}`}
+            aria-label="Filtros"
+          >
             <div className={styles.filterSection}>
               <span className={styles.filterTitle}>Categoria</span>
               <div className={styles.filterOptions}>
