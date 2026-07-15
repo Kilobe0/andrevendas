@@ -4,22 +4,26 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { LayoutDashboard, Inbox, Frame, Plus } from 'lucide-react';
-import { getArtworks, deleteArtwork, Artwork, formatPrice, getImageUrl, statusBadge } from '@/lib/api';
+import { getArtworks, getCategories, deleteArtwork, Artwork, Category, formatPrice, getImageUrl, statusBadge } from '@/lib/api';
 import { toast } from '@/components/admin/Toast';
+import EditArtworkModal from '@/components/admin/EditArtworkModal';
 import styles from './page.module.css';
 
 export default function AdminObrasPage() {
   const router = useRouter();
   const [token, setToken] = useState('');
   const [artworks, setArtworks] = useState<Artwork[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [editing, setEditing] = useState<Artwork | null>(null);
 
   useEffect(() => {
     const t = localStorage.getItem('av_token');
     if (!t) { router.push('/admin/login'); return; }
     setToken(t);
     loadArtworks();
+    getCategories().then(setCategories).catch(() => {});
   }, []);
 
   async function loadArtworks() {
@@ -94,9 +98,14 @@ export default function AdminObrasPage() {
                     <p className={styles.cardPrice}>{formatPrice(artwork.price)}</p>
                   </div>
                   <div className={styles.cardActions}>
-                    <Link href={`/admin/obras/editar?id=${artwork._id}`} className="btn btn-outline" style={{ flex: 1 }}>
+                    <button
+                      className="btn btn-outline"
+                      style={{ flex: 1 }}
+                      onClick={() => setEditing(artwork)}
+                      id={`edit-${artwork._id}`}
+                    >
                       Editar
-                    </Link>
+                    </button>
                     <button
                       className={styles.deleteBtn}
                       onClick={() => handleDelete(artwork._id, artwork.title)}
@@ -112,6 +121,20 @@ export default function AdminObrasPage() {
           </div>
         )}
       </main>
+
+      {editing && (
+        <EditArtworkModal
+          artwork={editing}
+          categories={categories}
+          token={token}
+          onSaved={updated => {
+            // Atualiza o card na lista sem recarregar a página.
+            setArtworks(prev => prev.map(a => (a._id === updated._id ? updated : a)));
+            setEditing(null);
+          }}
+          onClose={() => setEditing(null)}
+        />
+      )}
     </div>
   );
 }

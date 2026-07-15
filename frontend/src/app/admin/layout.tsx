@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 // Bump manual a cada deploy do admin — identifica qual versão o navegador
 // está rodando (diagnóstico de cache/bundle antigo).
-const ADMIN_BUILD = 'v7';
+const ADMIN_BUILD = 'v8';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
