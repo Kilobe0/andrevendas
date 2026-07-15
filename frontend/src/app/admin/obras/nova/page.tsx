@@ -72,7 +72,11 @@ export default function NovaObraPage() {
         weight: grams === '' ? undefined : Number(grams) / 1000,
         images,
       } as any, token);
-      toast(`Obra "${form.title}" criada`, 'success', { flash: true });
+      toast(
+        `Obra "${form.title}" criada — peso: ${grams ? `${grams} g` : 'não informado'}`,
+        'success',
+        { flash: true },
+      );
       router.push('/admin/obras');
     } catch (err: any) {
       toast(err.message || 'Erro ao criar a obra', 'error');

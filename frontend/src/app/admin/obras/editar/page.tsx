@@ -96,7 +96,11 @@ function EditarObraInner() {
         weight: grams === '' ? undefined : Number(grams) / 1000,
         images,
       } as any, token);
-      toast(`Alterações de "${form.title}" salvas`, 'success', { flash: true });
+      toast(
+        `Alterações de "${form.title}" salvas — peso: ${grams ? `${grams} g` : 'não informado'}`,
+        'success',
+        { flash: true },
+      );
       router.push('/admin/obras');
     } catch (err: any) {
       toast(err.message || 'Erro ao salvar as alterações', 'error');
