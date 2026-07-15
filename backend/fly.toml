@@ -9,6 +9,10 @@ primary_region = 'gru' # São Paulo
   FRONTEND_URL = 'https://andrevalenca.pages.dev'
   PUBLIC_API_URL = 'https://andrevendas-api.fly.dev'
   CHECKOUT_RETURN_URL = 'https://andrevalenca.pages.dev/checkout/retorno'
+  # Melhor Envio (frete) — sandbox até a conta definitiva do artista autorizar
+  MELHORENVIO_CLIENT_ID = '27133'
+  MELHORENVIO_SANDBOX = 'true'
+  MELHORENVIO_USER_AGENT = 'andrevalenca (matheusachim@gmail.com)'
 
 [http_service]
   internal_port = 3001
