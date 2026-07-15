@@ -9,6 +9,7 @@ import { Order, OrderDocument, OrderStatus } from './order.schema';
 import { ArtworksService } from '../artworks/artworks.service';
 import { ArtworkStatus } from '../artworks/artwork.schema';
 import { MercadoPagoService, PREFERENCE_TTL_MS } from '../payments/mercadopago.service';
+import { MelhorEnvioService, buildQuoteProduct } from '../shipping/melhorenvio.service';
 
 // Reservas de pedidos pendentes expiram depois disso. Margem de 5 min acima
 // da validade do link de pagamento (PREFERENCE_TTL_MS): quando o backend
@@ -40,6 +41,13 @@ class OrderItemDto {
   @IsOptional() @IsString() variant?: string;
 }
 
+// Frete escolhido pelo cliente. Só identifica a opção (transportadora +
+// serviço) — o PREÇO é recotado no servidor; nunca confiamos no navegador.
+class OrderShippingDto {
+  @IsString() @IsNotEmpty() company: string;
+  @IsString() @IsNotEmpty() service: string;
+}
+
 export class CreateOrderDto {
   // O método de pagamento não é escolhido aqui — quem decide é o Checkout Pro.
   // Ele é capturado do Mercado Pago no webhook (ver handleWebhook).
@@ -48,6 +56,9 @@ export class CreateOrderDto {
 
   @IsArray() @ValidateNested({ each: true }) @Type(() => OrderItemDto)
   items: OrderItemDto[];
+
+  @IsOptional() @ValidateNested() @Type(() => OrderShippingDto)
+  shipping?: OrderShippingDto;
 }
 
 @Injectable()
@@ -58,6 +69,7 @@ export class OrdersService {
     @InjectModel(Order.name) private orderModel: Model<OrderDocument>,
     private artworksService: ArtworksService,
     private mercadoPago: MercadoPagoService,
+    private melhorEnvio: MelhorEnvioService,
   ) {}
 
   async create(dto: CreateOrderDto): Promise<{ order: OrderDocument; initPoint: string }> {
@@ -101,10 +113,33 @@ export class OrdersService {
       total += artwork.price;
     }
 
+    // Frete: recota no servidor e localiza a opção que o cliente escolheu.
+    // Preço sempre o do servidor — o navegador só indica transportadora+serviço.
+    let shipping: { company: string; service: string; price: number; deliveryDays: number } | undefined;
+    if (dto.shipping) {
+      const zip = dto.customer.address?.zipCode?.replace(/\D/g, '') || '';
+      if (zip.length !== 8) {
+        throw new BadRequestException('Informe um CEP válido para calcular o frete');
+      }
+      const artworks = await Promise.all(dto.items.map(i => this.artworksService.findById(i.artworkId)));
+      const options = await this.melhorEnvio.calculate(zip, artworks.map(a => buildQuoteProduct(a)));
+      const chosen = options.find(
+        o => o.company === dto.shipping!.company && o.service === dto.shipping!.service,
+      );
+      if (!chosen) {
+        throw new BadRequestException(
+          'A opção de frete escolhida não está mais disponível — recalcule o frete',
+        );
+      }
+      shipping = chosen;
+      total += chosen.price;
+    }
+
     const order = await this.orderModel.create({
       customer: dto.customer,
       items: orderItems,
       totalAmount: total,
+      shipping,
       status: OrderStatus.PENDING,
     });
 
@@ -122,7 +157,16 @@ export class OrdersService {
     try {
       const pref = await this.mercadoPago.createPreference({
         orderId: String(order._id),
-        items: orderItems.map(i => ({ title: i.title, quantity: 1, unit_price: i.price })),
+        items: [
+          ...orderItems.map(i => ({ title: i.title, quantity: 1, unit_price: i.price })),
+          ...(shipping
+            ? [{
+                title: `Frete — ${shipping.service} (${shipping.company})`,
+                quantity: 1,
+                unit_price: shipping.price,
+              }]
+            : []),
+        ],
         payer: { name: dto.customer.name, email: dto.customer.email },
       });
       order.preferenceId = pref.id;

@@ -53,9 +53,18 @@ export interface Artwork {
   createdAt: string;
 }
 
+export interface ShippingOption {
+  company: string;
+  service: string;
+  price: number;
+  deliveryDays: number;
+}
+
 export interface Order {
   _id: string;
   status: 'PENDING' | 'PAID' | 'CANCELLED';
+  // Frete escolhido no checkout (ausente = entrega local ou reserva)
+  shipping?: ShippingOption;
   // Capturado do Mercado Pago no webhook (account_money, credit_card,
   // bank_transfer, ticket...). Vazio enquanto PENDING.
   paymentMethod?: string;
@@ -119,10 +128,19 @@ export const getCategories = () => apiFetch<Category[]>('/categories');
 export const createOrder = (data: {
   customer: Order['customer'];
   items: Array<{ artworkId: string; variant?: string }>;
+  // O preço do frete é recotado no servidor; aqui vai só a opção escolhida.
+  shipping?: { company: string; service: string };
 }) =>
   apiFetch<{ order: Order; initPoint: string }>('/orders', {
     method: 'POST',
     body: JSON.stringify(data),
+  });
+
+// ─── Frete ───────────────────────────────────────────────
+export const quoteShipping = (zipTo: string, items: Array<{ artworkId: string; quantity?: number }>) =>
+  apiFetch<ShippingOption[]>('/shipping/quote', {
+    method: 'POST',
+    body: JSON.stringify({ zipTo, items }),
   });
 
 // Público: usado pela página de retorno do checkout para acompanhar o Pix.

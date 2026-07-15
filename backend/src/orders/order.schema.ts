@@ -40,6 +40,16 @@ class OrderItem {
   @Prop() variant: string;
 }
 
+// Frete escolhido no checkout (cotado no servidor via Melhor Envio).
+// Ausente = entrega local combinada (Sete Lagoas e região) ou reserva.
+@Schema({ _id: false })
+class OrderShipping {
+  @Prop({ required: true }) company: string;
+  @Prop({ required: true }) service: string;
+  @Prop({ required: true }) price: number;
+  @Prop() deliveryDays: number;
+}
+
 @Schema({ timestamps: true })
 export class Order {
   @Prop({ type: String, enum: OrderStatus, default: OrderStatus.PENDING })
@@ -59,6 +69,9 @@ export class Order {
 
   @Prop({ type: [OrderItem], required: true })
   items: OrderItem[];
+
+  @Prop({ type: OrderShipping })
+  shipping?: OrderShipping;
 
   // Rastreamento do Mercado Pago (Checkout Pro)
   @Prop()

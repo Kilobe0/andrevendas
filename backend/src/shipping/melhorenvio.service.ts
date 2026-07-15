@@ -37,6 +37,24 @@ export interface QuoteOption {
   deliveryDays: number;
 }
 
+// Caixa padrão enquanto as obras não têm dimensões de embalagem próprias
+// (cotação conservadora; ajustar quando o admin ganhar campos de embalagem).
+export const DEFAULT_BOX = { width: 60, height: 70, length: 15 };
+export const MIN_WEIGHT_KG = 0.3;
+
+export function buildQuoteProduct(
+  artwork: { _id: unknown; weight?: number; price?: number },
+  quantity = 1,
+): QuoteProduct {
+  return {
+    id: String(artwork._id),
+    ...DEFAULT_BOX,
+    weight: Math.max(artwork.weight || 0, MIN_WEIGHT_KG),
+    insurance_value: artwork.price || 0,
+    quantity,
+  };
+}
+
 @Injectable()
 export class MelhorEnvioService {
   private readonly logger = new Logger(MelhorEnvioService.name);

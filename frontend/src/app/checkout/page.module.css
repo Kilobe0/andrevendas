@@ -509,6 +509,88 @@
   padding: var(--sp-5) var(--sp-7) var(--sp-7);
 }
 
+.summaryShippingRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: var(--sp-3);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+/* ── Opções de frete ──────────────────────────────────────── */
+.shippingOptions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  border: none;
+  padding: 0;
+  margin: var(--sp-2) 0 0;
+}
+
+.shippingLegend {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: var(--sp-3);
+}
+
+.shippingOption {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: border-color var(--transition), background var(--transition);
+}
+
+.shippingOption:hover {
+  border-color: var(--text-muted);
+}
+
+.shippingOptionActive {
+  border-color: var(--text);
+  background: var(--bg-alt);
+}
+
+.shippingOption input {
+  accent-color: var(--accent);
+  flex-shrink: 0;
+}
+
+.shippingOptionName {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  color: var(--text);
+}
+
+.shippingOptionCompany {
+  color: var(--text-faint);
+}
+
+.shippingOptionEta {
+  margin-left: auto;
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.shippingOptionPrice {
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+}
+
 .summaryTotalRow {
   display: flex;
   justify-content: space-between;

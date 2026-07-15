@@ -1,7 +1,7 @@
 import { BadRequestException, Body, Controller, Get, Post, Query, Redirect } from '@nestjs/common';
 import { IsArray, IsInt, IsOptional, IsString, Min, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
-import { MelhorEnvioService, QuoteProduct } from './melhorenvio.service';
+import { MelhorEnvioService, QuoteProduct, buildQuoteProduct } from './melhorenvio.service';
 import { ArtworksService } from '../artworks/artworks.service';
 
 class QuoteItemDto {
@@ -13,11 +13,6 @@ class QuoteDto {
   @IsString() zipTo: string;
   @IsArray() @ValidateNested({ each: true }) @Type(() => QuoteItemDto) items: QuoteItemDto[];
 }
-
-// Caixa padrão enquanto as obras não têm dimensões de embalagem próprias
-// (cotação conservadora; ajustar quando o admin ganhar campos de embalagem).
-const DEFAULT_BOX = { width: 60, height: 70, length: 15 };
-const MIN_WEIGHT_KG = 0.3;
 
 @Controller('shipping')
 export class ShippingController {
@@ -53,13 +48,7 @@ export class ShippingController {
     const products: QuoteProduct[] = [];
     for (const item of dto.items) {
       const artwork = await this.artworks.findById(item.artworkId);
-      products.push({
-        id: String(artwork._id),
-        ...DEFAULT_BOX,
-        weight: Math.max(artwork.weight || 0, MIN_WEIGHT_KG),
-        insurance_value: artwork.price || 0,
-        quantity: item.quantity ?? 1,
-      });
+      products.push(buildQuoteProduct(artwork, item.quantity ?? 1));
     }
     return this.melhorEnvio.calculate(dto.zipTo, products);
   }

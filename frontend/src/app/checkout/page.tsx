@@ -1,11 +1,11 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { AlertTriangle, Lock, Package, BadgeCheck, Info, MapPin, Clock } from 'lucide-react';
+import { AlertTriangle, Lock, Package, BadgeCheck, Info, MapPin, Clock, Truck } from 'lucide-react';
 import { useCart } from '@/lib/cart';
 import {
-  createOrder, formatPrice, getImageUrl, getOrderStatus,
+  createOrder, formatPrice, getImageUrl, getOrderStatus, quoteShipping,
   loadCheckoutSession, saveCheckoutSession, clearCheckoutSession,
-  CHECKOUT_SESSION_TTL_MS, type CheckoutSession,
+  CHECKOUT_SESSION_TTL_MS, type CheckoutSession, type ShippingOption,
 } from '@/lib/api';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -39,6 +39,7 @@ const normalizeCity = (s: string) =>
 const isRegiao = (city: string) => REGIAO_SETE_LAGOAS.includes(normalizeCity(city));
 
 type CepCheck = 'idle' | 'loading' | 'in-region' | 'out-of-region' | 'not-found';
+type ShippingState = 'idle' | 'loading' | 'ok' | 'error';
 
 export default function CheckoutPage() {
   const { items, total } = useCart();
@@ -49,6 +50,13 @@ export default function CheckoutPage() {
   const [cepCheck, setCepCheck] = useState<CepCheck>('idle');
   const [showReservaDialog, setShowReservaDialog] = useState(false);
   const [pendingSession, setPendingSession] = useState<CheckoutSession | null>(null);
+
+  // Frete para fora de Sete Lagoas e região: cotado no backend (Melhor Envio).
+  const [shippingState, setShippingState] = useState<ShippingState>('idle');
+  const [shippingOptions, setShippingOptions] = useState<ShippingOption[]>([]);
+  const [shippingSelected, setShippingSelected] = useState<ShippingOption | null>(null);
+
+  const grandTotal = total + (shippingSelected?.price ?? 0);
 
   const update = (k: keyof FormData, v: string) => setForm(f => ({ ...f, [k]: v }));
 
@@ -102,6 +110,11 @@ export default function CheckoutPage() {
     const masked = digits.length > 5 ? `${digits.slice(0, 5)}-${digits.slice(5)}` : digits;
     update('zipCode', masked);
 
+    // Qualquer mudança de CEP invalida a cotação anterior
+    setShippingState('idle');
+    setShippingOptions([]);
+    setShippingSelected(null);
+
     if (digits.length < 8) {
       setCepCheck('idle');
       return;
@@ -122,10 +135,36 @@ export default function CheckoutPage() {
         city: data.localidade || f.city,
         state: data.uf || f.state,
       }));
-      setCepCheck(isRegiao(data.localidade || '') ? 'in-region' : 'out-of-region');
+      if (isRegiao(data.localidade || '')) {
+        setCepCheck('in-region');
+      } else {
+        setCepCheck('out-of-region');
+        fetchShipping(digits);
+      }
     } catch {
       // ViaCEP fora do ar não pode travar a compra — segue sem verificação
       setCepCheck('idle');
+    }
+  }
+
+  // Cota o frete no backend; se falhar, o fluxo antigo de "reserva sem
+  // entrega" continua valendo como fallback.
+  async function fetchShipping(cepDigits: string) {
+    setShippingState('loading');
+    try {
+      const options = await quoteShipping(
+        cepDigits,
+        items.map(i => ({ artworkId: i.artwork._id })),
+      );
+      if (options.length === 0) {
+        setShippingState('error');
+        return;
+      }
+      setShippingOptions(options);
+      setShippingSelected(options[0]); // mais barata pré-selecionada
+      setShippingState('ok');
+    } catch {
+      setShippingState('error');
     }
   }
 
@@ -154,9 +193,9 @@ export default function CheckoutPage() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!isValid) return;
-    // Dupla verificação: fora da área de entrega, o cliente precisa
-    // confirmar que entendeu que a compra vale como reserva
-    if (cepCheck === 'out-of-region') {
+    // Dupla verificação: fora da área de entrega E sem frete cotado, o
+    // cliente precisa confirmar que entendeu que a compra vale como reserva.
+    if (cepCheck === 'out-of-region' && !shippingSelected) {
       setShowReservaDialog(true);
       return;
     }
@@ -176,6 +215,9 @@ export default function CheckoutPage() {
           },
         },
         items: items.map(i => ({ artworkId: i.artwork._id, variant: i.variant })),
+        ...(shippingSelected
+          ? { shipping: { company: shippingSelected.company, service: shippingSelected.service } }
+          : {}),
       });
       // Guarda a sessão para o cliente poder retomar o pagamento se fechar
       // a aba do Mercado Pago (a reserva e o link duram ~30 min).
@@ -314,18 +356,46 @@ export default function CheckoutPage() {
                     Seu endereço está na nossa área de entrega — Sete Lagoas e região.
                   </p>
                 )}
-                {cepCheck === 'out-of-region' && (
+                {cepCheck === 'out-of-region' && shippingState === 'loading' && (
+                  <p className={styles.cepChecking}>Calculando frete...</p>
+                )}
+                {cepCheck === 'out-of-region' && shippingState === 'ok' && (
+                  <fieldset className={styles.shippingOptions}>
+                    <legend className={styles.shippingLegend}>
+                      <Truck size={15} strokeWidth={1.5} aria-hidden="true" /> Escolha o frete
+                    </legend>
+                    {shippingOptions.map(opt => {
+                      const key = `${opt.company}-${opt.service}`;
+                      const checked = shippingSelected?.company === opt.company && shippingSelected?.service === opt.service;
+                      return (
+                        <label key={key} className={`${styles.shippingOption} ${checked ? styles.shippingOptionActive : ''}`}>
+                          <input
+                            type="radio"
+                            name="shipping"
+                            checked={checked}
+                            onChange={() => setShippingSelected(opt)}
+                          />
+                          <span className={styles.shippingOptionName}>
+                            {opt.service} <span className={styles.shippingOptionCompany}>({opt.company})</span>
+                          </span>
+                          <span className={styles.shippingOptionEta}>
+                            até {opt.deliveryDays} dia{opt.deliveryDays !== 1 ? 's' : ''} úteis
+                          </span>
+                          <span className={styles.shippingOptionPrice}>{formatPrice(opt.price)}</span>
+                        </label>
+                      );
+                    })}
+                  </fieldset>
+                )}
+                {cepCheck === 'out-of-region' && shippingState === 'error' && (
                   <div className={styles.cepNotice} role="status">
                     <Info size={18} strokeWidth={1.5} aria-hidden="true" />
                     <div>
-                      <strong>Seu endereço fica fora de Sete Lagoas e região.</strong>
+                      <strong>Não conseguimos calcular o frete agora.</strong>
                       <p>
                         Você ainda pode concluir a compra: a obra ficará{' '}
-                        <strong>reservada em seu nome</strong>, mas a entrega não será
-                        feita neste momento. Ainda estamos pesando todas as peças para
-                        conseguir calcular os fretes — por isso, por enquanto, só
-                        entregamos em Sete Lagoas (MG) e região. Assim que for possível,
-                        entraremos em contato para combinar a entrega da sua obra.
+                        <strong>reservada em seu nome</strong> e entraremos em contato
+                        para combinar a entrega e o valor do frete.
                       </p>
                     </div>
                   </div>
@@ -418,7 +488,7 @@ export default function CheckoutPage() {
                 Redirecionando ao pagamento...
               </span>
             ) : (
-              `Ir para o pagamento · ${formatPrice(total)}`
+              `Ir para o pagamento · ${formatPrice(grandTotal)}`
             )}
           </button>
 
@@ -464,9 +534,15 @@ export default function CheckoutPage() {
             })}
           </div>
           <div className={styles.summaryFooter}>
+            {shippingSelected && (
+              <div className={styles.summaryShippingRow}>
+                <span>Frete — {shippingSelected.service}</span>
+                <span>{formatPrice(shippingSelected.price)}</span>
+              </div>
+            )}
             <div className={styles.summaryTotalRow}>
               <span className={styles.summaryTotalLabel}>Total</span>
-              <span className={styles.summaryTotalValue}>{formatPrice(total)}</span>
+              <span className={styles.summaryTotalValue}>{formatPrice(grandTotal)}</span>
             </div>
             <p className={styles.summaryNote}>
               Cada obra é uma peça única. Após a confirmação do pagamento,
@@ -496,12 +572,10 @@ export default function CheckoutPage() {
               Seu endereço fica fora de Sete Lagoas e região
             </h2>
             <p id="reserva-dialog-text" className={styles.dialogText}>
-              Você pode concluir a compra normalmente e a obra ficará{' '}
-              <strong>reservada em seu nome</strong>, mas a entrega{' '}
-              <strong>não será feita neste momento</strong>. Ainda estamos pesando
-              todas as peças para conseguir calcular os fretes — por isso, por
-              enquanto, só entregamos em Sete Lagoas (MG) e região. Assim que for
-              possível, entraremos em contato para combinar a entrega da sua obra.
+              Não foi possível calcular o frete para o seu endereço agora. Você
+              pode concluir a compra normalmente e a obra ficará{' '}
+              <strong>reservada em seu nome</strong>; entraremos em contato para
+              combinar a entrega e o valor do frete.
             </p>
             <div className={styles.dialogActions}>
               <button
