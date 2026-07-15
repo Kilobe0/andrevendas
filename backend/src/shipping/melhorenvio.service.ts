@@ -37,18 +37,49 @@ export interface QuoteOption {
   deliveryDays: number;
 }
 
-// Caixa padrão enquanto as obras não têm dimensões de embalagem próprias
-// (cotação conservadora; ajustar quando o admin ganhar campos de embalagem).
+// Caixa padrão quando o texto de dimensões da obra não é parseável
+// (cotação conservadora).
 export const DEFAULT_BOX = { width: 60, height: 70, length: 15 };
 export const MIN_WEIGHT_KG = 0.3;
 
+// Margens de embalagem (papelão + plástico bolha + cantoneiras), em cm.
+const FLAT_MARGIN = 8; // telas/desenhos: margem em cada dimensão da face
+const FLAT_DEPTH = 10; // telas têm ~2 cm de espessura; o resto é proteção
+const SOLID_MARGIN = 6; // esculturas: margem por lado
+
+// Deriva a embalagem a partir do texto livre de dimensões da obra
+// ("62 × 43 cm" → pacote 70×51×10). Dois números = obra plana (tela/desenho);
+// três = peça tridimensional (escultura); sem números = caixa padrão.
+// Mínimos dos Correios (16×11×2) aplicados no final.
+export function packageFor(dimensions?: string): { width: number; height: number; length: number } {
+  const nums = (dimensions || '')
+    .match(/\d+(?:[.,]\d+)?/g)
+    ?.map(n => parseFloat(n.replace(',', '.')))
+    .filter(n => n > 0) ?? [];
+
+  let dims: number[];
+  if (nums.length === 2) {
+    dims = [nums[0] + FLAT_MARGIN, nums[1] + FLAT_MARGIN, FLAT_DEPTH];
+  } else if (nums.length >= 3) {
+    dims = [nums[0] + SOLID_MARGIN, nums[1] + SOLID_MARGIN, nums[2] + SOLID_MARGIN];
+  } else {
+    return DEFAULT_BOX;
+  }
+  dims.sort((a, b) => b - a);
+  return {
+    length: Math.max(Math.ceil(dims[0]), 16),
+    width: Math.max(Math.ceil(dims[1]), 11),
+    height: Math.max(Math.ceil(dims[2]), 2),
+  };
+}
+
 export function buildQuoteProduct(
-  artwork: { _id: unknown; weight?: number; price?: number },
+  artwork: { _id: unknown; weight?: number; price?: number; dimensions?: string },
   quantity = 1,
 ): QuoteProduct {
   return {
     id: String(artwork._id),
-    ...DEFAULT_BOX,
+    ...packageFor(artwork.dimensions),
     weight: Math.max(artwork.weight || 0, MIN_WEIGHT_KG),
     insurance_value: artwork.price || 0,
     quantity,
