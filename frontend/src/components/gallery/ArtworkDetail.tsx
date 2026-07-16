@@ -45,12 +45,15 @@ export default function ArtworkDetail({ artwork, related }: Props) {
 
   // Pinturas em tela têm ~2 cm de espessura (chassi), mas o cadastro guarda só
   // a face ("60 × 80 cm"). Completa a ficha para o cliente não ficar sem a
-  // informação — a menos que as dimensões já tragam a profundidade.
+  // informação ("60 × 80 × 2 cm") — a menos que já traga a profundidade.
   const dimensionCount = artwork.dimensions?.match(/\d+(?:[.,]\d+)?/g)?.length ?? 0;
   const showThickness =
     categorySlug === 'pinturas-em-tela' &&
     dimensionCount === 2 &&
     !/espessura|profundidade/i.test(artwork.dimensions ?? '');
+  const displayDimensions = showThickness
+    ? `${artwork.dimensions.replace(/\s*cm\s*\.?\s*$/i, '')} × 2 cm`
+    : artwork.dimensions;
 
   return (
     <div className={styles.page}>
@@ -170,10 +173,7 @@ export default function ArtworkDetail({ artwork, related }: Props) {
               {artwork.dimensions && (
                 <div className={styles.spec}>
                   <dt className={styles.specLabel}>Dimensões</dt>
-                  <dd className={styles.specValue}>
-                    {artwork.dimensions}
-                    {showThickness && ' · espessura 2 cm'}
-                  </dd>
+                  <dd className={styles.specValue}>{displayDimensions}</dd>
                 </div>
               )}
               {!!artwork.weight && (
