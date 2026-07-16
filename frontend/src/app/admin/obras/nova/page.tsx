@@ -3,9 +3,10 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { LayoutDashboard, Inbox, Frame, Plus, ArrowLeft, X } from 'lucide-react';
+import { Plus, ArrowLeft, X } from 'lucide-react';
 import { getCategories, createArtwork, uploadImage, Category, getImageUrl } from '@/lib/api';
 import { toast } from '@/components/admin/Toast';
+import AdminShell from '@/components/admin/AdminShell';
 import styles from './page.module.css';
 
 export default function NovaObraPage() {
@@ -86,22 +87,8 @@ export default function NovaObraPage() {
   }
 
   return (
-    <div className={styles.layout}>
-      <aside className={styles.sidebar}>
-        <div className={styles.sidebarBrand}>
-          <Link href="/admin/dashboard" className={styles.brandLink}>André Valença</Link>
-          <span>Admin</span>
-        </div>
-        <nav className={styles.sidebarNav}>
-          <Link href="/admin/dashboard" className={styles.navItem}><LayoutDashboard size={16} strokeWidth={1.5} /> Dashboard</Link>
-          <Link href="/admin/pedidos" className={styles.navItem}><Inbox size={16} strokeWidth={1.5} /> Pedidos</Link>
-          <Link href="/admin/obras" className={styles.navItem}><Frame size={16} strokeWidth={1.5} /> Obras</Link>
-          <Link href="/admin/obras/nova" className={`${styles.navItem} ${styles.active}`}><Plus size={16} strokeWidth={1.5} /> Nova Obra</Link>
-        </nav>
-      </aside>
-
-      <main className={styles.main}>
-        <div className={styles.header}>
+    <AdminShell>
+      <div className={styles.header}>
           <h1 className={styles.pageTitle}>Nova Obra</h1>
           <Link href="/admin/obras" className="btn btn-outline"><ArrowLeft size={16} strokeWidth={1.5} /> Voltar</Link>
         </div>
@@ -228,7 +215,6 @@ export default function NovaObraPage() {
             <Link href="/admin/obras" className="btn btn-outline">Cancelar</Link>
           </div>
         </form>
-      </main>
-    </div>
+    </AdminShell>
   );
 }

@@ -1,92 +1,8 @@
-.layout {
-  display: grid;
-  grid-template-columns: 240px 1fr;
-  min-height: 100vh;
-}
-
-.sidebar {
-  background: var(--text);
-  color: var(--bg);
-  display: flex;
-  flex-direction: column;
-  padding: var(--space-6) 0;
-  position: sticky;
-  top: 0;
-  height: 100vh;
-}
-
-.sidebarBrand {
-  padding: 0 var(--space-6) var(--space-6);
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-  margin-bottom: var(--space-5);
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.brandLink {
-  font-family: var(--font-title);
-  font-size: var(--text-lg);
-  color: var(--bg);
-}
-
-.sidebarBrand span {
-  font-size: var(--text-xs);
-  color: var(--text-light);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.sidebarNav {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  padding: 0 var(--space-3);
-}
-
-.navItem {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-3) var(--space-4);
-  font-size: var(--text-sm);
-  color: var(--text-light);
-  border-radius: var(--radius);
-  transition: all var(--transition);
-}
-
-.navItem:hover { background: rgba(255,255,255,0.06); color: var(--bg); }
-.navItem.active { background: rgba(196,133,74,0.2); color: var(--accent-warm); }
-
-.sidebarFooter {
-  padding: var(--space-5) var(--space-6);
-  border-top: 1px solid rgba(255,255,255,0.08);
-}
-
-.logoutBtn {
-  font-size: var(--text-xs);
-  color: var(--text-muted);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  transition: color var(--transition);
-}
-
-.logoutBtn:hover { color: var(--accent-warm); }
-
-/* Main */
-.main {
-  background: var(--bg);
-  padding: var(--space-10) var(--space-12);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-8);
-}
-
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: var(--space-4);
   border-bottom: 1px solid var(--border);
   padding-bottom: var(--space-6);
 }
@@ -192,5 +108,16 @@
 
 @media (max-width: 900px) {
   .grid { grid-template-columns: repeat(2, 1fr); }
-  .main { padding: var(--space-6); }
+}
+
+@media (max-width: 768px) {
+  .header { flex-wrap: wrap; }
+
+  .grid { gap: var(--space-3); }
+
+  .cardBody { padding: var(--space-3); gap: var(--space-3); }
+
+  /* Botões maiores para o dedo */
+  .cardActions { flex-direction: column; }
+  .deleteBtn { padding: var(--space-3); }
 }

@@ -842,6 +842,15 @@ main {
   .container--narrow { padding: 0 var(--sp-4); }
 }
 
+/* No touch, campos com menos de 16px fazem o iOS dar zoom ao focar */
+@media (max-width: 768px) {
+  .form-input,
+  .form-select,
+  .form-textarea {
+    font-size: 16px;
+  }
+}
+
 /* ════════════════════════════════════════════════════════════
    MOVIMENTO REDUZIDO
 ════════════════════════════════════════════════════════════ */

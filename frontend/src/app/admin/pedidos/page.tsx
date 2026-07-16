@@ -1,11 +1,14 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import Image from 'next/image';
-import { LayoutDashboard, Inbox, Frame, Plus } from 'lucide-react';
-import { getOrders, deleteOrder, Order, formatPrice, getImageUrl } from '@/lib/api';
+import { Truck, RefreshCw, Printer } from 'lucide-react';
+import {
+  getOrders, deleteOrder, buyShipmentLabel, refreshShipmentLabel,
+  Order, formatPrice, getImageUrl,
+} from '@/lib/api';
 import { toast } from '@/components/admin/Toast';
+import AdminShell from '@/components/admin/AdminShell';
 import styles from './page.module.css';
 
 const STATUS_LABELS: Record<string, string> = { PENDING: 'Pendente', PAID: 'Pago', CANCELLED: 'Cancelado' };
@@ -15,6 +18,19 @@ const PAYMENT_LABELS: Record<string, string> = {
   debit_card: 'Cartão de débito',
   bank_transfer: 'Pix',
   ticket: 'Boleto',
+};
+
+// Ciclo de vida da etiqueta no Melhor Envio (webhook mantém atualizado).
+const SHIPMENT_STATUS_LABELS: Record<string, string> = {
+  pending: 'Etiqueta pendente',
+  paid: 'Etiqueta paga',
+  generated: 'Etiqueta gerada',
+  released: 'Etiqueta liberada',
+  posted: 'Postado',
+  delivered: 'Entregue',
+  canceled: 'Etiqueta cancelada',
+  undelivered: 'Não entregue',
+  expired: 'Etiqueta expirada',
 };
 
 type Filter = 'ALL' | 'PAID' | 'PENDING' | 'CANCELLED';
@@ -38,6 +54,8 @@ export default function AdminPedidosPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<Filter>('ALL');
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [buying, setBuying] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState<string | null>(null);
 
   useEffect(() => {
     const t = localStorage.getItem('av_token');
@@ -60,43 +78,58 @@ export default function AdminPedidosPage() {
     }
   }
 
+  // Compra a etiqueta no Melhor Envio — debita a carteira de verdade, por
+  // isso a confirmação explícita antes de chamar o backend.
+  async function handleBuyLabel(order: Order) {
+    const freight = order.shipping ? ` (frete cotado: ${formatPrice(order.shipping.price)})` : '';
+    if (!confirm(
+      `Comprar a etiqueta deste envio no Melhor Envio?${freight}\n\n` +
+      'O valor será debitado do saldo da carteira Melhor Envio. ' +
+      'Cancelar antes da postagem devolve o saldo.',
+    )) return;
+    setBuying(order._id);
+    try {
+      const updated = await buyShipmentLabel(order._id, token);
+      setOrders(prev => prev.map(o => (o._id === order._id ? updated : o)));
+      toast('Etiqueta comprada');
+    } catch (e: any) {
+      toast(e.message || 'Erro ao comprar a etiqueta', 'error');
+    } finally {
+      setBuying(null);
+    }
+  }
+
+  async function handleRefreshShipment(order: Order) {
+    setRefreshing(order._id);
+    try {
+      const updated = await refreshShipmentLabel(order._id, token);
+      setOrders(prev => prev.map(o => (o._id === order._id ? updated : o)));
+      toast('Rastreio atualizado');
+    } catch (e: any) {
+      toast(e.message || 'Erro ao atualizar o rastreio', 'error');
+    } finally {
+      setRefreshing(null);
+    }
+  }
+
   const visible = filter === 'ALL' ? orders : orders.filter(o => o.status === filter);
 
   return (
-    <div className={styles.layout}>
-      <aside className={styles.sidebar}>
-        <div className={styles.sidebarBrand}>
-          <Link href="/admin/dashboard" className={styles.brandLink}>André Valença</Link>
-          <span>Admin</span>
+    <AdminShell>
+      <div className={styles.header}>
+        <h1 className={styles.pageTitle}>Pedidos</h1>
+        <div className={styles.filters} role="tablist" aria-label="Filtrar pedidos">
+          {(['ALL', 'PAID', 'PENDING', 'CANCELLED'] as Filter[]).map(f => (
+            <button
+              key={f}
+              className={`${styles.filterBtn} ${filter === f ? styles.filterActive : ''}`}
+              onClick={() => setFilter(f)}
+            >
+              {f === 'ALL' ? 'Todos' : STATUS_LABELS[f]}
+            </button>
+          ))}
         </div>
-        <nav className={styles.sidebarNav}>
-          <Link href="/admin/dashboard" className={styles.navItem}><LayoutDashboard size={16} strokeWidth={1.5} /> Dashboard</Link>
-          <Link href="/admin/pedidos" className={`${styles.navItem} ${styles.active}`}><Inbox size={16} strokeWidth={1.5} /> Pedidos</Link>
-          <Link href="/admin/obras" className={styles.navItem}><Frame size={16} strokeWidth={1.5} /> Obras</Link>
-          <Link href="/admin/obras/nova" className={styles.navItem}><Plus size={16} strokeWidth={1.5} /> Nova Obra</Link>
-        </nav>
-        <div className={styles.sidebarFooter}>
-          <button onClick={() => { localStorage.removeItem('av_token'); router.push('/admin/login'); }} className={styles.logoutBtn}>
-            Sair
-          </button>
-        </div>
-      </aside>
-
-      <main className={styles.main}>
-        <div className={styles.header}>
-          <h1 className={styles.pageTitle}>Pedidos</h1>
-          <div className={styles.filters} role="tablist" aria-label="Filtrar pedidos">
-            {(['ALL', 'PAID', 'PENDING', 'CANCELLED'] as Filter[]).map(f => (
-              <button
-                key={f}
-                className={`${styles.filterBtn} ${filter === f ? styles.filterActive : ''}`}
-                onClick={() => setFilter(f)}
-              >
-                {f === 'ALL' ? 'Todos' : STATUS_LABELS[f]}
-              </button>
-            ))}
-          </div>
-        </div>
+      </div>
 
         {loading ? (
           <div className={styles.loading}>Carregando...</div>
@@ -132,6 +165,9 @@ export default function AdminPedidosPage() {
                       {order.customer.phone && <div><dt>Telefone</dt><dd>{order.customer.phone}</dd></div>}
                       {order.customer.cpf && <div><dt>CPF</dt><dd>{order.customer.cpf}</dd></div>}
                       <div><dt>Endereço</dt><dd>{fullAddress(order.customer.address) || '—'}</dd></div>
+                      <div><dt>Frete</dt><dd>{order.shipping
+                        ? `${order.shipping.service} (${order.shipping.company}) · ${formatPrice(order.shipping.price)}`
+                        : 'Entrega local combinada'}</dd></div>
                     </dl>
                   </div>
 
@@ -153,6 +189,60 @@ export default function AdminPedidosPage() {
                 </div>
 
                 <div className={styles.orderActions}>
+                  {/* Etiqueta Melhor Envio: comprar (pedido pago com frete) ou acompanhar */}
+                  <div className={styles.shipmentArea}>
+                    {order.status === 'PAID' && order.shipping && !order.shipment?.meOrderId && (
+                      <button
+                        className={styles.shipBtn}
+                        onClick={() => handleBuyLabel(order)}
+                        disabled={buying === order._id}
+                      >
+                        <Truck size={14} strokeWidth={1.5} />
+                        {buying === order._id ? 'Comprando...' : 'Comprar etiqueta'}
+                      </button>
+                    )}
+                    {order.shipment?.meOrderId && (
+                      <>
+                        <span className={styles.shipmentStatus}>
+                          <Truck size={14} strokeWidth={1.5} />
+                          {SHIPMENT_STATUS_LABELS[order.shipment.status || ''] ?? order.shipment.status}
+                        </span>
+                        {order.shipment.trackingCode && (
+                          order.shipment.trackingUrl ? (
+                            <a
+                              className={styles.trackingCode}
+                              href={order.shipment.trackingUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                            >
+                              {order.shipment.trackingCode}
+                            </a>
+                          ) : (
+                            <span className={styles.trackingCode}>{order.shipment.trackingCode}</span>
+                          )
+                        )}
+                        {order.shipment.labelUrl && (
+                          <a
+                            className={styles.shipBtn}
+                            href={order.shipment.labelUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            <Printer size={14} strokeWidth={1.5} /> Imprimir etiqueta
+                          </a>
+                        )}
+                        <button
+                          className={styles.ghostBtn}
+                          onClick={() => handleRefreshShipment(order)}
+                          disabled={refreshing === order._id}
+                          title="Reconsulta etiqueta e rastreio no Melhor Envio"
+                        >
+                          <RefreshCw size={14} strokeWidth={1.5} />
+                          {refreshing === order._id ? 'Atualizando...' : 'Atualizar rastreio'}
+                        </button>
+                      </>
+                    )}
+                  </div>
                   <button
                     className={styles.deleteBtn}
                     onClick={() => handleDelete(order)}
@@ -162,10 +252,9 @@ export default function AdminPedidosPage() {
                   </button>
                 </div>
               </article>
-            ))}
-          </div>
-        )}
-      </main>
-    </div>
+          ))}
+        </div>
+      )}
+    </AdminShell>
   );
 }

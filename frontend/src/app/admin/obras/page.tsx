@@ -3,10 +3,10 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { LayoutDashboard, Inbox, Frame, Plus } from 'lucide-react';
 import { getArtworks, getCategories, deleteArtwork, Artwork, Category, formatPrice, getImageUrl, statusBadge } from '@/lib/api';
 import { toast } from '@/components/admin/Toast';
 import EditArtworkModal from '@/components/admin/EditArtworkModal';
+import AdminShell from '@/components/admin/AdminShell';
 import styles from './page.module.css';
 
 export default function AdminObrasPage() {
@@ -47,80 +47,60 @@ export default function AdminObrasPage() {
   }
 
   return (
-    <div className={styles.layout}>
-      <aside className={styles.sidebar}>
-        <div className={styles.sidebarBrand}>
-          <Link href="/admin/dashboard" className={styles.brandLink}>André Valença</Link>
-          <span>Admin</span>
-        </div>
-        <nav className={styles.sidebarNav}>
-          <Link href="/admin/dashboard" className={styles.navItem}><LayoutDashboard size={16} strokeWidth={1.5} /> Dashboard</Link>
-          <Link href="/admin/pedidos" className={styles.navItem}><Inbox size={16} strokeWidth={1.5} /> Pedidos</Link>
-          <Link href="/admin/obras" className={`${styles.navItem} ${styles.active}`}><Frame size={16} strokeWidth={1.5} /> Obras</Link>
-          <Link href="/admin/obras/nova" className={styles.navItem}><Plus size={16} strokeWidth={1.5} /> Nova Obra</Link>
-        </nav>
-        <div className={styles.sidebarFooter}>
-          <button onClick={() => { localStorage.removeItem('av_token'); router.push('/admin/login'); }} className={styles.logoutBtn}>
-            Sair
-          </button>
-        </div>
-      </aside>
+    <AdminShell>
+      <div className={styles.header}>
+        <h1 className={styles.pageTitle}>Gerenciar Obras</h1>
+        <Link href="/admin/obras/nova" className="btn btn-primary" id="add-obra-btn">
+          + Nova obra
+        </Link>
+      </div>
 
-      <main className={styles.main}>
-        <div className={styles.header}>
-          <h1 className={styles.pageTitle}>Gerenciar Obras</h1>
-          <Link href="/admin/obras/nova" className="btn btn-primary" id="add-obra-btn">
-            + Nova obra
-          </Link>
-        </div>
-
-        {loading ? (
-          <div className={styles.loading}>Carregando...</div>
-        ) : (
-          <div className={styles.grid}>
-            {artworks.map(artwork => (
-              <div key={artwork._id} className={styles.card}>
-                <div className={styles.cardImage}>
-                  <Image
-                    src={getImageUrl(artwork.images[0])}
-                    alt={artwork.title}
-                    fill style={{ objectFit: 'cover' }}
-                  />
-                  <span className={`badge ${statusBadge(artwork.status).cls}`}
-                    style={{ position: 'absolute', top: 8, left: 8 }}>
-                    {statusBadge(artwork.status).label}
-                  </span>
+      {loading ? (
+        <div className={styles.loading}>Carregando...</div>
+      ) : (
+        <div className={styles.grid}>
+          {artworks.map(artwork => (
+            <div key={artwork._id} className={styles.card}>
+              <div className={styles.cardImage}>
+                <Image
+                  src={getImageUrl(artwork.images[0])}
+                  alt={artwork.title}
+                  fill style={{ objectFit: 'cover' }}
+                />
+                <span className={`badge ${statusBadge(artwork.status).cls}`}
+                  style={{ position: 'absolute', top: 8, left: 8 }}>
+                  {statusBadge(artwork.status).label}
+                </span>
+              </div>
+              <div className={styles.cardBody}>
+                <div>
+                  <h3 className={styles.cardTitle}>{artwork.title}</h3>
+                  <p className={styles.cardMeta}>{artwork.material} · {artwork.category?.name}</p>
+                  <p className={styles.cardPrice}>{formatPrice(artwork.price)}</p>
                 </div>
-                <div className={styles.cardBody}>
-                  <div>
-                    <h3 className={styles.cardTitle}>{artwork.title}</h3>
-                    <p className={styles.cardMeta}>{artwork.material} · {artwork.category?.name}</p>
-                    <p className={styles.cardPrice}>{formatPrice(artwork.price)}</p>
-                  </div>
-                  <div className={styles.cardActions}>
-                    <button
-                      className="btn btn-outline"
-                      style={{ flex: 1 }}
-                      onClick={() => setEditing(artwork)}
-                      id={`edit-${artwork._id}`}
-                    >
-                      Editar
-                    </button>
-                    <button
-                      className={styles.deleteBtn}
-                      onClick={() => handleDelete(artwork._id, artwork.title)}
-                      disabled={deleting === artwork._id}
-                      id={`delete-${artwork._id}`}
-                    >
-                      {deleting === artwork._id ? '...' : 'Remover'}
-                    </button>
-                  </div>
+                <div className={styles.cardActions}>
+                  <button
+                    className="btn btn-outline"
+                    style={{ flex: 1 }}
+                    onClick={() => setEditing(artwork)}
+                    id={`edit-${artwork._id}`}
+                  >
+                    Editar
+                  </button>
+                  <button
+                    className={styles.deleteBtn}
+                    onClick={() => handleDelete(artwork._id, artwork.title)}
+                    disabled={deleting === artwork._id}
+                    id={`delete-${artwork._id}`}
+                  >
+                    {deleting === artwork._id ? '...' : 'Remover'}
+                  </button>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-      </main>
+            </div>
+          ))}
+        </div>
+      )}
 
       {editing && (
         <EditArtworkModal
@@ -135,6 +115,6 @@ export default function AdminObrasPage() {
           onClose={() => setEditing(null)}
         />
       )}
-    </div>
+    </AdminShell>
   );
 }

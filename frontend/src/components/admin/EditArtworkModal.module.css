@@ -64,6 +64,24 @@
 }
 
 @media (max-width: 700px) {
-  .overlay { padding: var(--sp-2); }
-  .panel { padding: var(--sp-4); }
+  /* Em telas pequenas o modal ocupa a tela inteira, com cabeçalho fixo */
+  .overlay { padding: 0; }
+
+  .panel {
+    min-height: 100dvh;
+    padding: var(--sp-4);
+    padding-bottom: calc(var(--sp-8) + env(safe-area-inset-bottom));
+    border: none;
+  }
+
+  .panelHeader {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--bg);
+    padding-top: var(--sp-3);
+    margin-top: calc(-1 * var(--sp-3));
+  }
+
+  .closeBtn { width: 44px; height: 44px; }
 }

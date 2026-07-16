@@ -2,25 +2,24 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { LayoutDashboard, Inbox, Frame, Plus } from 'lucide-react';
-import { getArtworks, getOrderStats, getOrders, Artwork, Order, formatPrice } from '@/lib/api';
+import { getArtworks, getOrderStats, getOrders, publishSite, Artwork, Order, formatPrice } from '@/lib/api';
+import { toast } from '@/components/admin/Toast';
+import AdminShell from '@/components/admin/AdminShell';
 import styles from './page.module.css';
 
 export default function AdminDashboardPage() {
   const router = useRouter();
   const [token, setToken] = useState('');
-  const [admin, setAdmin] = useState<{ name: string; email: string } | null>(null);
   const [artworks, setArtworks] = useState<Artwork[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [stats, setStats] = useState({ total: 0, sold: 0, revenue: 0, pendingOrders: 0 });
   const [loading, setLoading] = useState(true);
+  const [publishing, setPublishing] = useState(false);
 
   useEffect(() => {
     const t = localStorage.getItem('av_token');
-    const a = localStorage.getItem('av_admin');
     if (!t) { router.push('/admin/login'); return; }
     setToken(t);
-    if (a) setAdmin(JSON.parse(a));
 
     Promise.all([
       getArtworks().catch(() => []),
@@ -34,10 +33,16 @@ export default function AdminDashboardPage() {
     });
   }, []);
 
-  function logout() {
-    localStorage.removeItem('av_token');
-    localStorage.removeItem('av_admin');
-    router.push('/admin/login');
+  async function handlePublish() {
+    setPublishing(true);
+    try {
+      const { ok, message } = await publishSite(token);
+      toast(message, ok ? 'success' : 'error');
+    } catch (e: any) {
+      toast(e.message || 'Erro ao publicar o site', 'error');
+    } finally {
+      setPublishing(false);
+    }
   }
 
   if (loading) {
@@ -48,100 +53,85 @@ export default function AdminDashboardPage() {
   const sold = artworks.filter(a => a.status === 'SOLD').length;
 
   return (
-    <div className={styles.layout}>
-      {/* Sidebar */}
-      <aside className={styles.sidebar}>
-        <div className={styles.sidebarBrand}>
-          <Link href="/admin/dashboard" className={styles.brandLink}>André Valença</Link>
-          <span>Admin</span>
-        </div>
-        <nav className={styles.sidebarNav}>
-          <Link href="/admin/dashboard" className={`${styles.navItem} ${styles.active}`} id="nav-dashboard">
-            <LayoutDashboard size={16} strokeWidth={1.5} /> Dashboard
-          </Link>
-          <Link href="/admin/pedidos" className={styles.navItem} id="nav-pedidos">
-            <Inbox size={16} strokeWidth={1.5} /> Pedidos
-          </Link>
-          <Link href="/admin/obras" className={styles.navItem} id="nav-obras">
-            <Frame size={16} strokeWidth={1.5} /> Obras
-          </Link>
-          <Link href="/admin/obras/nova" className={styles.navItem} id="nav-nova-obra">
-            <Plus size={16} strokeWidth={1.5} /> Nova Obra
-          </Link>
-        </nav>
-        <div className={styles.sidebarFooter}>
-          <span className={styles.adminName}>{admin?.name}</span>
-          <button onClick={logout} className={styles.logoutBtn}>Sair</button>
-        </div>
-      </aside>
+    <AdminShell>
+      <div className={styles.header}>
+        <h1 className={styles.pageTitle}>Dashboard</h1>
+      </div>
 
-      {/* Main */}
-      <main className={styles.main}>
-        <div className={styles.header}>
-          <h1 className={styles.pageTitle}>Dashboard</h1>
+      {/* Stats */}
+      <div className={styles.statsGrid}>
+        <div className={styles.statCard}>
+          <span className={styles.statLabel}>Total de Obras</span>
+          <span className={styles.statValue}>{artworks.length}</span>
         </div>
-
-        {/* Stats */}
-        <div className={styles.statsGrid}>
-          <div className={styles.statCard}>
-            <span className={styles.statLabel}>Total de Obras</span>
-            <span className={styles.statValue}>{artworks.length}</span>
-          </div>
-          <div className={styles.statCard}>
-            <span className={styles.statLabel}>Disponíveis</span>
-            <span className={`${styles.statValue} ${styles.statAvailable}`}>{available}</span>
-          </div>
-          <div className={styles.statCard}>
-            <span className={styles.statLabel}>Vendidas</span>
-            <span className={`${styles.statValue} ${styles.statSold}`}>{sold}</span>
-          </div>
-          <div className={styles.statCard}>
-            <span className={styles.statLabel}>Pedidos</span>
-            <span className={styles.statValue}>{stats.total}</span>
-          </div>
+        <div className={styles.statCard}>
+          <span className={styles.statLabel}>Disponíveis</span>
+          <span className={`${styles.statValue} ${styles.statAvailable}`}>{available}</span>
         </div>
+        <div className={styles.statCard}>
+          <span className={styles.statLabel}>Vendidas</span>
+          <span className={`${styles.statValue} ${styles.statSold}`}>{sold}</span>
+        </div>
+        <div className={styles.statCard}>
+          <span className={styles.statLabel}>Pedidos</span>
+          <span className={styles.statValue}>{stats.total}</span>
+        </div>
+      </div>
 
-        {/* Quick actions */}
+      {/* Quick actions */}
+      <div className={styles.section}>
+        <h2 className={styles.sectionTitle}>Ações Rápidas</h2>
+        <div className={styles.actions}>
+          <Link href="/admin/obras/nova" className="btn btn-primary" id="quick-add-artwork">
+            + Adicionar obra
+          </Link>
+          <Link href="/admin/obras" className="btn btn-outline">
+            Gerenciar obras
+          </Link>
+          <button
+            className="btn btn-outline"
+            onClick={handlePublish}
+            disabled={publishing}
+            id="publish-site-btn"
+          >
+            {publishing ? 'Publicando...' : 'Publicar site'}
+          </button>
+        </div>
+        <p className={styles.publishNote}>
+          Obras salvas são publicadas no site automaticamente em alguns minutos.
+          Use “Publicar site” para forçar a atualização agora.
+        </p>
+      </div>
+
+      {/* Recent orders */}
+      {orders.length > 0 && (
         <div className={styles.section}>
-          <h2 className={styles.sectionTitle}>Ações Rápidas</h2>
-          <div className={styles.actions}>
-            <Link href="/admin/obras/nova" className="btn btn-primary" id="quick-add-artwork">
-              + Adicionar obra
-            </Link>
-            <Link href="/admin/obras" className="btn btn-outline">
-              Gerenciar obras
-            </Link>
-          </div>
-        </div>
-
-        {/* Recent orders */}
-        {orders.length > 0 && (
-          <div className={styles.section}>
-            <h2 className={styles.sectionTitle}>Pedidos Recentes</h2>
-            <div className={styles.table}>
-              <div className={styles.tableHeader}>
-                <span>Cliente</span>
-                <span>Itens</span>
-                <span>Total</span>
-                <span>Status</span>
-                <span>Pagamento</span>
-              </div>
-              {orders.map(order => (
-                <div key={order._id} className={styles.tableRow}>
-                  <span>{order.customer.name}</span>
-                  <span>{order.items.length} obra(s)</span>
-                  <span>{formatPrice(order.totalAmount)}</span>
+          <h2 className={styles.sectionTitle}>Pedidos Recentes</h2>
+          <div className={styles.table}>
+            <div className={styles.tableHeader}>
+              <span>Cliente</span>
+              <span>Itens</span>
+              <span>Total</span>
+              <span>Status</span>
+              <span>Pagamento</span>
+            </div>
+            {orders.map(order => (
+              <div key={order._id} className={styles.tableRow}>
+                <span data-label="Cliente">{order.customer.name}</span>
+                <span data-label="Itens">{order.items.length} obra(s)</span>
+                <span data-label="Total">{formatPrice(order.totalAmount)}</span>
+                <span data-label="Status">
                   <span className={`badge ${order.status === 'PAID' ? 'badge-available' : 'badge-sold'}`}>
                     {STATUS_LABELS[order.status]}
                   </span>
-                  <span>{order.paymentMethod ? (PAYMENT_LABELS[order.paymentMethod] ?? order.paymentMethod) : '—'}</span>
-                </div>
-              ))}
-            </div>
+                </span>
+                <span data-label="Pagamento">{order.paymentMethod ? (PAYMENT_LABELS[order.paymentMethod] ?? order.paymentMethod) : '—'}</span>
+              </div>
+            ))}
           </div>
-        )}
-      </main>
-    </div>
+        </div>
+      )}
+    </AdminShell>
   );
 }
 

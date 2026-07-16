@@ -1,0 +1,194 @@
+.layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: 100vh;
+}
+
+/* ── Sidebar (desktop) ─────────────────────────────────── */
+.sidebar {
+  background: var(--text);
+  color: var(--bg);
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-6) 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.sidebarBrand {
+  padding: 0 var(--space-6) var(--space-6);
+  border-bottom: 1px solid color-mix(in srgb, var(--text-inverse) 10%, transparent);
+  margin-bottom: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.brandLink {
+  font-family: var(--font-title);
+  font-size: var(--text-lg);
+  color: var(--bg);
+  transition: color var(--transition);
+}
+.brandLink:hover { color: var(--accent-warm); }
+
+.sidebarBrand span {
+  font-size: var(--text-xs);
+  /* --bg é o par invertido de --text (fundo da barra) nos dois temas */
+  color: color-mix(in srgb, var(--bg) 60%, transparent);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.sidebarNav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: 0 var(--space-3);
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-sm);
+  color: color-mix(in srgb, var(--bg) 72%, transparent);
+  border-radius: var(--radius);
+  transition: all var(--transition);
+  letter-spacing: 0.04em;
+}
+.navItem:hover { background: color-mix(in srgb, var(--text-inverse) 8%, transparent); color: var(--bg); }
+.navItem.active { background: rgba(196,133,74,0.2); color: var(--accent-warm); }
+
+.sidebarFooter {
+  padding: var(--space-5) var(--space-6);
+  border-top: 1px solid color-mix(in srgb, var(--text-inverse) 10%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.adminName {
+  font-size: var(--text-sm);
+  color: color-mix(in srgb, var(--bg) 72%, transparent);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.logoutBtn {
+  font-size: var(--text-xs);
+  color: color-mix(in srgb, var(--bg) 60%, transparent);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: color var(--transition);
+}
+.logoutBtn:hover { color: var(--accent-warm); }
+
+/* ── Topbar + bottom nav (mobile) ──────────────────────── */
+.topbar { display: none; }
+.bottomNav { display: none; }
+
+/* ── Main ──────────────────────────────────────────────── */
+.main {
+  background: var(--bg);
+  padding: var(--space-10) var(--space-12);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  min-width: 0; /* impede que tabelas/grades estourem a coluna do grid */
+}
+
+@media (max-width: 1024px) {
+  .main { padding: var(--space-6); }
+}
+
+@media (max-width: 768px) {
+  /* Linhas explícitas: sem isso, o stretch do grid distribui a sobra de
+     min-height entre topbar e main — a topbar ficava gigante em páginas curtas */
+  .layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
+  .sidebar { display: none; }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--text);
+    color: var(--bg);
+    padding: var(--space-3) var(--space-5);
+    padding-top: calc(var(--space-3) + env(safe-area-inset-top));
+  }
+
+  .topbarBrand {
+    font-family: var(--font-title);
+    font-size: var(--text-base);
+    color: var(--bg);
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+  }
+
+  .topbarBrand span {
+    font-size: var(--text-2xs);
+    color: color-mix(in srgb, var(--bg) 60%, transparent);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .topbarLogout {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    color: color-mix(in srgb, var(--bg) 80%, transparent);
+    transition: color var(--transition);
+  }
+  .topbarLogout:hover { color: var(--bg); }
+
+  .main {
+    padding: var(--space-5) var(--space-4);
+    /* espaço para a barra inferior fixa não cobrir o fim do conteúdo */
+    padding-bottom: calc(72px + env(safe-area-inset-bottom) + var(--space-6));
+    gap: var(--space-6);
+  }
+
+  .bottomNav {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background: var(--text);
+    border-top: 1px solid color-mix(in srgb, var(--text-inverse) 10%, transparent);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .bottomNavItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-height: 60px;
+    color: color-mix(in srgb, var(--bg) 78%, transparent);
+    font-size: var(--text-2xs);
+    letter-spacing: 0.04em;
+    transition: color var(--transition);
+  }
+
+  .bottomActive { color: var(--accent-warm); }
+}

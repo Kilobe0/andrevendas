@@ -2,9 +2,10 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { LayoutDashboard, Inbox, Frame, Plus, ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { getArtworks, getCategories, Artwork, Category } from '@/lib/api';
 import ArtworkEditForm from '@/components/admin/ArtworkEditForm';
+import AdminShell from '@/components/admin/AdminShell';
 // Reaproveita o visual da tela "Nova Obra" (mesmo layout de formulário).
 import styles from '../nova/page.module.css';
 
@@ -39,22 +40,8 @@ function EditarObraInner() {
   }, [id]);
 
   return (
-    <div className={styles.layout}>
-      <aside className={styles.sidebar}>
-        <div className={styles.sidebarBrand}>
-          <Link href="/admin/dashboard" className={styles.brandLink}>André Valença</Link>
-          <span>Admin</span>
-        </div>
-        <nav className={styles.sidebarNav}>
-          <Link href="/admin/dashboard" className={styles.navItem}><LayoutDashboard size={16} strokeWidth={1.5} /> Dashboard</Link>
-          <Link href="/admin/pedidos" className={styles.navItem}><Inbox size={16} strokeWidth={1.5} /> Pedidos</Link>
-          <Link href="/admin/obras" className={`${styles.navItem} ${styles.active}`}><Frame size={16} strokeWidth={1.5} /> Obras</Link>
-          <Link href="/admin/obras/nova" className={styles.navItem}><Plus size={16} strokeWidth={1.5} /> Nova Obra</Link>
-        </nav>
-      </aside>
-
-      <main className={styles.main}>
-        <div className={styles.header}>
+    <AdminShell>
+      <div className={styles.header}>
           <h1 className={styles.pageTitle}>Editar Obra</h1>
           <Link href="/admin/obras" className="btn btn-outline"><ArrowLeft size={16} strokeWidth={1.5} /> Voltar</Link>
         </div>
@@ -74,8 +61,7 @@ function EditarObraInner() {
             onCancel={() => router.push('/admin/obras')}
           />
         )}
-      </main>
-    </div>
+    </AdminShell>
   );
 }
 

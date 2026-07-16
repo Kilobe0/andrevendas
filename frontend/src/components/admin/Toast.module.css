@@ -37,3 +37,13 @@
   from { opacity: 1; transform: translateY(0); }
   to { opacity: 0; transform: translateY(8px); }
 }
+
+@media (max-width: 768px) {
+  /* Acima da barra de navegação inferior do admin */
+  .toast {
+    left: var(--sp-4);
+    right: var(--sp-4);
+    bottom: calc(72px + env(safe-area-inset-bottom));
+    max-width: none;
+  }
+}
