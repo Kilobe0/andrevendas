@@ -3,11 +3,13 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Artwork, ArtworkDocument, ArtworkStatus } from './artwork.schema';
 import { CreateArtworkDto, UpdateArtworkDto, FilterArtworksDto } from './artwork.dto';
+import { PublishService } from '../publish/publish.service';
 
 @Injectable()
 export class ArtworksService {
   constructor(
     @InjectModel(Artwork.name) private artworkModel: Model<ArtworkDocument>,
+    private readonly publishService: PublishService,
   ) {}
 
   async findAll(filters: FilterArtworksDto = {}): Promise<ArtworkDocument[]> {
@@ -43,10 +45,12 @@ export class ArtworksService {
   }
 
   async create(dto: CreateArtworkDto): Promise<ArtworkDocument> {
-    return this.artworkModel.create({
+    const artwork = await this.artworkModel.create({
       ...dto,
       category: new Types.ObjectId(dto.category),
     });
+    this.publishService.schedule(`obra criada: ${artwork.slug}`);
+    return artwork;
   }
 
   async update(id: string, dto: UpdateArtworkDto): Promise<ArtworkDocument> {
@@ -57,12 +61,14 @@ export class ArtworksService {
       .populate('category')
       .exec();
     if (!artwork) throw new NotFoundException('Obra não encontrada');
+    this.publishService.schedule(`obra editada: ${artwork.slug}`);
     return artwork;
   }
 
   async remove(id: string): Promise<void> {
     const result = await this.artworkModel.findByIdAndDelete(id).exec();
     if (!result) throw new NotFoundException('Obra não encontrada');
+    this.publishService.schedule(`obra removida: ${result.slug}`);
   }
 
   // Confirma a venda de uma unidade (webhook de pagamento aprovado). A unidade
@@ -75,6 +81,7 @@ export class ArtworksService {
       artwork.status = ArtworkStatus.SOLD;
       await artwork.save();
     }
+    this.publishService.schedule(`obra vendida: ${artwork.slug}`);
     return artwork;
   }
 
@@ -94,6 +101,7 @@ export class ArtworksService {
     if (artwork.quantity <= 0) {
       artwork.status = ArtworkStatus.RESERVED;
       await artwork.save();
+      this.publishService.schedule(`obra reservada: ${artwork.slug}`);
     }
     return artwork;
   }
@@ -114,6 +122,7 @@ export class ArtworksService {
       artwork.status = ArtworkStatus.AVAILABLE;
     }
     await artwork.save();
+    this.publishService.schedule(`obra devolvida ao catálogo: ${artwork.slug}`);
     return artwork;
   }
 
@@ -128,6 +137,7 @@ export class ArtworksService {
     if (artwork.variants.some(v => v.status === ArtworkStatus.AVAILABLE)) {
       artwork.status = ArtworkStatus.AVAILABLE;
     }
+    this.publishService.schedule(`variante liberada: ${artwork.slug}/${variantName}`);
     return artwork.save();
   }
 
@@ -147,6 +157,7 @@ export class ArtworksService {
     if (artwork.variants.every(v => v.status !== ArtworkStatus.AVAILABLE)) {
       artwork.status = status;
     }
+    this.publishService.schedule(`variante atualizada: ${artwork.slug}/${variantName}`);
     return artwork.save();
   }
 
