@@ -48,6 +48,28 @@ class OrderShipping {
   @Prop({ required: true }) service: string;
   @Prop({ required: true }) price: number;
   @Prop() deliveryDays: number;
+
+  // Id numérico do serviço no Melhor Envio (usado na compra da etiqueta).
+  // Pedidos anteriores a 2026-07-15 não têm; a compra recota e casa por nome.
+  @Prop() serviceId?: number;
+}
+
+// Etiqueta comprada no Melhor Envio para um pedido pago. `meOrderId` é o id
+// do envio lá (uuid) — chave para gerar/imprimir/rastrear e para o webhook.
+@Schema({ _id: false })
+class OrderShipment {
+  @Prop({ required: true }) meOrderId: string;
+  @Prop() protocol: string;
+  // Ciclo de vida no Melhor Envio: paid → generated → posted → delivered
+  // (ou canceled/expired). Atualizado pelo webhook e pelo refresh do admin.
+  @Prop() status: string;
+  @Prop() trackingCode: string;
+  @Prop() trackingUrl: string;
+  @Prop() labelUrl: string;
+  @Prop() price: number;
+  @Prop() purchasedAt: Date;
+  @Prop() postedAt: Date;
+  @Prop() deliveredAt: Date;
 }
 
 @Schema({ timestamps: true })
@@ -72,6 +94,9 @@ export class Order {
 
   @Prop({ type: OrderShipping })
   shipping?: OrderShipping;
+
+  @Prop({ type: OrderShipment })
+  shipment?: OrderShipment;
 
   // Rastreamento do Mercado Pago (Checkout Pro)
   @Prop()

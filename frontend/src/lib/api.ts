@@ -60,11 +60,28 @@ export interface ShippingOption {
   deliveryDays: number;
 }
 
+// Etiqueta comprada no Melhor Envio (pedido pago com frete). O status segue o
+// ciclo de vida de lá: paid → generated → posted → delivered (ou canceled).
+export interface OrderShipment {
+  meOrderId: string;
+  protocol?: string;
+  status?: string;
+  trackingCode?: string;
+  trackingUrl?: string;
+  labelUrl?: string;
+  price?: number;
+  purchasedAt?: string;
+  postedAt?: string;
+  deliveredAt?: string;
+}
+
 export interface Order {
   _id: string;
   status: 'PENDING' | 'PAID' | 'CANCELLED';
   // Frete escolhido no checkout (ausente = entrega local ou reserva)
   shipping?: ShippingOption;
+  // Etiqueta do Melhor Envio (só depois que o admin compra)
+  shipment?: OrderShipment;
   // Capturado do Mercado Pago no webhook (account_money, credit_card,
   // bank_transfer, ticket...). Vazio enquanto PENDING.
   paymentMethod?: string;
@@ -191,9 +208,32 @@ export const getOrderStats = (token: string) =>
     { headers: { Authorization: `Bearer ${token}` } },
   );
 
+// Compra a etiqueta do Melhor Envio (debita a carteira de verdade!).
+export const buyShipmentLabel = (id: string, token: string) =>
+  apiFetch<Order>(`/orders/${id}/shipment`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+// Reconsulta etiqueta/rastreio de um envio já comprado.
+export const refreshShipmentLabel = (id: string, token: string) =>
+  apiFetch<Order>(`/orders/${id}/shipment/refresh`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
 export const deleteOrder = (id: string, token: string) =>
   apiFetch<void>(`/orders/${id}`, {
     method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+// ─── Publicação do site ──────────────────────────────────
+// O site público é estático: o backend dispara o workflow de deploy no GitHub.
+// Obras salvas já agendam a republicação sozinhas; este endpoint força agora.
+export const publishSite = (token: string) =>
+  apiFetch<{ ok: boolean; message: string }>('/publish', {
+    method: 'POST',
     headers: { Authorization: `Bearer ${token}` },
   });
 

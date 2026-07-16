@@ -15,6 +15,16 @@ primary_region = 'gru' # São Paulo
   MELHORENVIO_SANDBOX = 'false'
   MELHORENVIO_USER_AGENT = 'andrevalenca (matheusachim@gmail.com)'
   MELHORENVIO_FROM_CEP = '35700353'
+  # Remetente da etiqueta (fase 2 — compra de etiqueta)
+  MELHORENVIO_FROM_NAME = 'André Valença Guimarães'
+  MELHORENVIO_FROM_PHONE = '31982409191'
+  MELHORENVIO_FROM_EMAIL = 'andrevalencaguimaraes@gmail.com'
+  # MELHORENVIO_FROM_CPF vem de `fly secrets` (CPF não fica no git)
+  MELHORENVIO_FROM_ADDRESS = 'Rua Jovelino Lanza'
+  MELHORENVIO_FROM_NUMBER = '1331'
+  MELHORENVIO_FROM_DISTRICT = 'Jardim Arizona'
+  MELHORENVIO_FROM_CITY = 'Sete Lagoas'
+  MELHORENVIO_FROM_STATE = 'MG'
 
 [http_service]
   internal_port = 3001

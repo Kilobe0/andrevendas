@@ -5,7 +5,9 @@ import { join } from 'path';
 import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  // rawBody: o webhook do Melhor Envio assina o corpo cru (HMAC X-ME-Signature),
+  // então precisamos dele além do JSON já parseado.
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, { rawBody: true });
 
   // FRONTEND_URL aceita lista separada por vírgula (ex.: GitHub Pages + Cloudflare Pages)
   const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:3000')

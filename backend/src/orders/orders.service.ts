@@ -9,7 +9,7 @@ import { Order, OrderDocument, OrderStatus } from './order.schema';
 import { ArtworksService } from '../artworks/artworks.service';
 import { ArtworkStatus } from '../artworks/artwork.schema';
 import { MercadoPagoService, PREFERENCE_TTL_MS } from '../payments/mercadopago.service';
-import { MelhorEnvioService, buildQuoteProduct } from '../shipping/melhorenvio.service';
+import { MelhorEnvioService, buildQuoteProduct, mergeVolume } from '../shipping/melhorenvio.service';
 
 // Reservas de pedidos pendentes expiram depois disso. Margem de 5 min acima
 // da validade do link de pagamento (PREFERENCE_TTL_MS): quando o backend
@@ -115,7 +115,7 @@ export class OrdersService {
 
     // Frete: recota no servidor e localiza a opção que o cliente escolheu.
     // Preço sempre o do servidor — o navegador só indica transportadora+serviço.
-    let shipping: { company: string; service: string; price: number; deliveryDays: number } | undefined;
+    let shipping: { serviceId: number; company: string; service: string; price: number; deliveryDays: number } | undefined;
     if (dto.shipping) {
       const zip = dto.customer.address?.zipCode?.replace(/\D/g, '') || '';
       if (zip.length !== 8) {
@@ -233,6 +233,130 @@ export class OrdersService {
       this.logger.log(`Pedido ${orderId} cancelado (pagamento ${payment.status}).`);
     }
     // pending / in_process: mantém o pedido PENDING e a obra reservada.
+  }
+
+  // Compra a etiqueta no Melhor Envio para um pedido pago com frete.
+  // Ação do admin (botão no painel) — debita a carteira Melhor Envio de
+  // verdade, por isso nunca é disparada automaticamente pelo webhook.
+  async buyShipment(id: string): Promise<OrderDocument> {
+    const order = await this.orderModel.findById(id).exec();
+    if (!order) throw new NotFoundException('Pedido não encontrado');
+    if (order.status !== OrderStatus.PAID) {
+      throw new BadRequestException('Só é possível comprar etiqueta de pedido pago');
+    }
+    if (!order.shipping) {
+      throw new BadRequestException('Este pedido é de entrega local — não usa etiqueta');
+    }
+    if (order.shipment?.meOrderId && order.shipment.status !== 'canceled') {
+      throw new BadRequestException('Este pedido já tem etiqueta comprada');
+    }
+
+    const a = order.customer.address;
+    const zip = (a?.zipCode || '').replace(/\D/g, '');
+    if (!a?.street || !a?.number || !a?.city || !a?.state || zip.length !== 8) {
+      throw new BadRequestException('Endereço do cliente incompleto — confira antes de comprar a etiqueta');
+    }
+
+    // Embalagem: mesma derivação usada na cotação, fundida num volume só.
+    const artworks = await Promise.all(
+      order.items.map(i => this.artworksService.findById(String(i.artwork))),
+    );
+    const quoteProducts = artworks.map(art => buildQuoteProduct(art));
+    const volume = mergeVolume(quoteProducts);
+    const insuranceValue = order.items.reduce((sum, i) => sum + i.price, 0);
+
+    // Pedidos antigos não guardaram o serviceId — recota e casa por nome.
+    let serviceId = order.shipping.serviceId;
+    if (!serviceId) {
+      const options = await this.melhorEnvio.calculate(zip, quoteProducts);
+      serviceId = options.find(
+        o => o.company === order.shipping!.company && o.service === order.shipping!.service,
+      )?.serviceId;
+      if (!serviceId) {
+        throw new BadRequestException(
+          `O serviço "${order.shipping.service} (${order.shipping.company})" não está mais disponível para este destino`,
+        );
+      }
+    }
+
+    const label = await this.melhorEnvio.buyLabel({
+      serviceId,
+      to: {
+        name: order.customer.name,
+        email: order.customer.email,
+        phone: order.customer.phone || undefined,
+        document: (order.customer.cpf || '').replace(/\D/g, '') || undefined,
+        address: a.street,
+        number: a.number,
+        complement: a.complement || undefined,
+        district: a.neighborhood || undefined,
+        city: a.city,
+        state_abbr: a.state,
+        postal_code: zip,
+      },
+      products: order.items.map(i => ({ name: i.title, quantity: 1, unitary_value: i.price })),
+      volume,
+      insuranceValue,
+    });
+
+    order.shipment = {
+      meOrderId: label.meOrderId,
+      protocol: label.protocol,
+      status: label.status,
+      trackingCode: label.trackingCode || '',
+      trackingUrl: label.trackingUrl || '',
+      labelUrl: label.labelUrl || '',
+      price: label.price,
+      purchasedAt: new Date(),
+    } as OrderDocument['shipment'];
+    await order.save();
+    this.logger.log(`Etiqueta comprada para o pedido ${id} (envio ${label.meOrderId}, R$ ${label.price}).`);
+    return order;
+  }
+
+  // Reconsulta o Melhor Envio para completar etiqueta/rastreio de um envio já
+  // comprado (ex.: código dos Correios que só sai depois da geração).
+  async refreshShipment(id: string): Promise<OrderDocument> {
+    const order = await this.orderModel.findById(id).exec();
+    if (!order) throw new NotFoundException('Pedido não encontrado');
+    if (!order.shipment?.meOrderId) {
+      throw new BadRequestException('Este pedido ainda não tem etiqueta comprada');
+    }
+    const label = await this.melhorEnvio.refreshLabel({
+      meOrderId: order.shipment.meOrderId,
+      protocol: order.shipment.protocol,
+      price: order.shipment.price,
+      status: order.shipment.status,
+    });
+    order.shipment.status = label.status || order.shipment.status;
+    if (label.protocol) order.shipment.protocol = label.protocol;
+    if (label.trackingCode) order.shipment.trackingCode = label.trackingCode;
+    if (label.trackingUrl) order.shipment.trackingUrl = label.trackingUrl;
+    if (label.labelUrl) order.shipment.labelUrl = label.labelUrl;
+    order.markModified('shipment');
+    await order.save();
+    return order;
+  }
+
+  // Webhook do Melhor Envio (order.posted, order.delivered...): atualiza o
+  // envio do pedido dono da etiqueta. Ignora eventos de envios desconhecidos
+  // (ex.: etiquetas compradas fora do site).
+  async handleShippingWebhook(event: string, data: any): Promise<void> {
+    const meOrderId = String(data?.id || '');
+    if (!meOrderId) return;
+    const order = await this.orderModel.findOne({ 'shipment.meOrderId': meOrderId }).exec();
+    if (!order || !order.shipment) {
+      this.logger.warn(`Webhook Melhor Envio para envio desconhecido: ${event} ${meOrderId}`);
+      return;
+    }
+    if (data.status) order.shipment.status = String(data.status);
+    if (data.tracking) order.shipment.trackingCode = String(data.tracking);
+    if (data.tracking_url) order.shipment.trackingUrl = String(data.tracking_url);
+    if (data.posted_at) order.shipment.postedAt = new Date(data.posted_at);
+    if (data.delivered_at) order.shipment.deliveredAt = new Date(data.delivered_at);
+    order.markModified('shipment');
+    await order.save();
+    this.logger.log(`Envio ${meOrderId} (pedido ${order._id}): ${event}.`);
   }
 
   // Cancela pedidos PENDING mais velhos que a reserva e libera suas obras.
