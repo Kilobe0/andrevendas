@@ -8,9 +8,9 @@ export class ArtworkVariantDto {
   @IsOptional() @IsEnum(ArtworkStatus) status?: ArtworkStatus;
 }
 
+// O slug não é aceito da API: é sempre derivado do título pelo serviço.
 export class CreateArtworkDto {
   @IsString() title: string;
-  @IsString() slug: string;
   @IsOptional() @IsString() description?: string;
   @IsString() material: string;
   @IsString() dimensions: string;
@@ -27,7 +27,6 @@ export class CreateArtworkDto {
 
 export class UpdateArtworkDto {
   @IsOptional() @IsString() title?: string;
-  @IsOptional() @IsString() slug?: string;
   @IsOptional() @IsString() description?: string;
   @IsOptional() @IsString() material?: string;
   @IsOptional() @IsString() dimensions?: string;

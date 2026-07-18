@@ -17,8 +17,9 @@ export default function NovaObraPage() {
   const [uploading, setUploading] = useState(false);
   const [images, setImages] = useState<string[]>([]);
 
+  // O slug (URL da obra) é gerado automaticamente pelo servidor a partir do título.
   const [form, setForm] = useState({
-    title: '', slug: '', description: '', material: '', dimensions: '', weight: '',
+    title: '', description: '', material: '', dimensions: '', weight: '',
     price: '', quantity: '1', status: 'AVAILABLE', featured: false, category: '',
   });
 
@@ -31,12 +32,6 @@ export default function NovaObraPage() {
 
   function updateForm(k: string, v: string | boolean) {
     setForm(f => ({ ...f, [k]: v }));
-    if (k === 'title') {
-      const slug = (v as string).toLowerCase()
-        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-        .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-      setForm(f => ({ ...f, title: v as string, slug }));
-    }
   }
 
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -102,10 +97,6 @@ export default function NovaObraPage() {
                 <div className="form-group">
                   <label className="form-label">Título *</label>
                   <input className="form-input" value={form.title} onChange={e => updateForm('title', e.target.value)} required id="obra-title" />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Slug (URL)</label>
-                  <input className="form-input" value={form.slug} onChange={e => updateForm('slug', e.target.value)} />
                 </div>
                 <div className="form-group">
                   <label className="form-label">Descrição artística</label>

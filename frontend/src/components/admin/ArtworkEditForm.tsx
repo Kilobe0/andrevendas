@@ -20,9 +20,9 @@ export default function ArtworkEditForm({ artwork, categories, token, onSaved, o
   const [uploading, setUploading] = useState(false);
   const [images, setImages] = useState<string[]>(artwork.images || []);
 
+  // O slug (URL da obra) é regenerado pelo servidor sempre que o título muda.
   const [form, setForm] = useState({
     title: artwork.title,
-    slug: artwork.slug,
     description: artwork.description || '',
     material: artwork.material,
     dimensions: artwork.dimensions || '',
@@ -92,10 +92,6 @@ export default function ArtworkEditForm({ artwork, categories, token, onSaved, o
             <div className="form-group">
               <label className="form-label">Título *</label>
               <input className="form-input" value={form.title} onChange={e => updateField('title', e.target.value)} required id="obra-title" />
-            </div>
-            <div className="form-group">
-              <label className="form-label">Slug (URL)</label>
-              <input className="form-input" value={form.slug} onChange={e => updateField('slug', e.target.value)} />
             </div>
             <div className="form-group">
               <label className="form-label">Descrição artística</label>

@@ -23,9 +23,9 @@ const EMPTY: FormData = {
   neighborhood: '', city: '', state: '', zipCode: '',
 };
 
-// Enquanto as peças não forem pesadas não há como calcular frete, então a
-// entrega imediata vale só para Sete Lagoas e municípios vizinhos. Fora
-// disso a compra é aceita como reserva da obra.
+// Sete Lagoas e municípios vizinhos têm entrega local combinada (sem frete).
+// Fora da região o frete é cotado no Melhor Envio; se a cotação falhar, a
+// compra ainda é aceita como reserva da obra (fallback).
 const REGIAO_SETE_LAGOAS = [
   'sete lagoas', 'prudente de morais', 'capim branco', 'matozinhos',
   'pedro leopoldo', 'caetanopolis', 'paraopeba', 'cachoeira da prata',

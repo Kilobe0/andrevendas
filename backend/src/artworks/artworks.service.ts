@@ -44,9 +44,38 @@ export class ArtworksService {
     return this.artworkModel.find({ featured: true }).populate('category').limit(6).exec();
   }
 
+  // O slug é derivado do título ("Mãos que Rezam" → "maos-que-rezam"); em caso
+  // de título repetido recebe sufixo numérico (-2, -3...) para manter a URL única.
+  private slugify(title: string): string {
+    return (
+      title
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[̀-ͯ]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '') || 'obra'
+    );
+  }
+
+  private async uniqueSlug(title: string, excludeId?: string): Promise<string> {
+    const base = this.slugify(title);
+    let slug = base;
+    for (let n = 2; ; n++) {
+      const clash = await this.artworkModel
+        .exists({
+          slug,
+          ...(excludeId ? { _id: { $ne: new Types.ObjectId(excludeId) } } : {}),
+        })
+        .exec();
+      if (!clash) return slug;
+      slug = `${base}-${n}`;
+    }
+  }
+
   async create(dto: CreateArtworkDto): Promise<ArtworkDocument> {
     const artwork = await this.artworkModel.create({
       ...dto,
+      slug: await this.uniqueSlug(dto.title),
       category: new Types.ObjectId(dto.category),
     });
     this.publishService.schedule(`obra criada: ${artwork.slug}`);
@@ -56,6 +85,8 @@ export class ArtworksService {
   async update(id: string, dto: UpdateArtworkDto): Promise<ArtworkDocument> {
     const update: Record<string, any> = { ...dto };
     if (dto.category) update.category = new Types.ObjectId(dto.category);
+    // Título mudou → slug acompanha (a URL antiga deixa de valer no próximo build).
+    if (dto.title) update.slug = await this.uniqueSlug(dto.title, id);
     const artwork = await this.artworkModel
       .findByIdAndUpdate(id, update, { new: true })
       .populate('category')
