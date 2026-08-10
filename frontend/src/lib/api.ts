@@ -1,6 +1,26 @@
 // API base URL
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
+// Token expirado/inválido: limpa a sessão e manda pro login. Só dispara quando
+// a própria chamada carregava Authorization — um 401 de /auth/login (senha
+// errada) não passa por aqui, então não atrapalha a mensagem de erro do form.
+function handleSessionExpired() {
+  if (typeof window === 'undefined') return;
+  localStorage.removeItem('av_token');
+  localStorage.removeItem('av_admin');
+  if (window.location.pathname !== '/admin/login') {
+    window.location.href = '/admin/login?expired=1';
+  }
+}
+
+function hasAuthHeader(options?: RequestInit): boolean {
+  const h = options?.headers;
+  if (!h) return false;
+  if (h instanceof Headers) return h.has('Authorization');
+  if (Array.isArray(h)) return h.some(([k]) => k.toLowerCase() === 'authorization');
+  return Object.keys(h).some(k => k.toLowerCase() === 'authorization');
+}
+
 async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
   // headers por último: o spread de options vinha depois e substituía o objeto
   // headers inteiro, derrubando o Content-Type — o Express então ignorava o
@@ -9,6 +29,9 @@ async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
     ...options,
     headers: { 'Content-Type': 'application/json', ...options?.headers },
   });
+  if (res.status === 401 && hasAuthHeader(options)) {
+    handleSessionExpired();
+  }
   if (!res.ok) {
     const error = await res.json().catch(() => ({ message: 'Erro desconhecido' }));
     throw new Error(error.message || `HTTP ${res.status}`);
@@ -253,6 +276,7 @@ export const uploadImage = async (file: File, token: string): Promise<{ url: str
     headers: { Authorization: `Bearer ${token}` },
     body: form,
   });
+  if (res.status === 401) handleSessionExpired();
   if (!res.ok) throw new Error('Falha no upload');
   return res.json();
 };

@@ -1,15 +1,22 @@
 'use client';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { login } from '@/lib/api';
 import styles from './page.module.css';
 
-export default function AdminLoginPage() {
+function AdminLoginInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (searchParams.get('expired') === '1') {
+      setError('Sessão expirada. Faça login novamente.');
+    }
+  }, [searchParams]);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -71,5 +78,13 @@ export default function AdminLoginPage() {
         <p className={styles.hint}>admin@andrevendas.com / admin123</p>
       </div>
     </div>
+  );
+}
+
+export default function AdminLoginPage() {
+  return (
+    <Suspense fallback={<div style={{ minHeight: '100vh' }} />}>
+      <AdminLoginInner />
+    </Suspense>
   );
 }
